@@ -3,6 +3,7 @@
 // Usage: node scripts/optimize-images.mjs
 import sharp from "sharp";
 import path from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -11,11 +12,16 @@ const imagesDir = path.resolve(__dirname, "../src/assets/images");
 // [sourceFile, outputFile, maxWidth, quality]
 const jobs = [
   ["silkpedi_hero_bg.png", "silkpedi_hero_bg.webp", 2336, 80],
+  ["silkpedi_pack_1779850178423.png", "silkpedi_pack_1779850178423.webp", 1408, 82],
 ];
 
 for (const [src, out, maxWidth, quality] of jobs) {
   const input = path.join(imagesDir, src);
   const output = path.join(imagesDir, out);
+  if (!existsSync(input)) {
+    console.log(`${src} -> skipped (source removed; already optimized)`);
+    continue;
+  }
   const info = await sharp(input)
     .resize({ width: maxWidth, withoutEnlargement: true })
     .webp({ quality, effort: 6 })
