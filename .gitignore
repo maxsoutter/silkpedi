@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Netlify CLI local state (machine-specific; real config lives in /netlify.toml)
+.netlify/
+
+# Claude Code local settings (machine-specific)
+.claude/
