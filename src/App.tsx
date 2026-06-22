@@ -25,7 +25,6 @@ import {
   Droplet,
   Layers,
   Smile,
-  Clock,
   Mail,
   CheckCircle,
   Menu
@@ -57,21 +56,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-
-  // Countdown timer for FOMO conversion (15 minutes)
-  const [timeLeft, setTimeLeft] = useState(900); // 15 minutes in seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 900));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -263,26 +247,64 @@ export default function App() {
     }
   };
 
+  // Shared hero copy (eyebrow, headline, description, CTA) — reused by both the
+  // desktop overlay layout and the mobile stacked layout so there's one source of truth.
+  const heroCopy = (
+    <>
+      <div className="inline-flex items-center space-x-2 bg-teal-light/40 border border-teal-bright/30 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-semibold text-purple-light tracking-wide w-fit shadow-md backdrop-blur-sm">
+        <Sparkles className="w-3.5 h-3.5 text-purple-brand animate-spin shrink-0" />
+        <span>THE ULTIMATE AT-HOME PEDI FOR SMOOTH FEET</span>
+      </div>
+
+      <div className="space-y-3">
+        <h1 className="font-serif text-[2.25rem] sm:text-4xl md:text-5xl xl:text-[3.75rem] font-medium tracking-tight leading-[1.05] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)]">
+          Silky Smooth <br />
+          <span className="font-serif italic text-purple-brand">
+            Feet at Home.
+          </span>
+        </h1>
+        <p className="font-sans text-[11px] md:text-xs font-bold text-purple-light tracking-widest uppercase">
+          THE AT-HOME PEDICURE, PERFECTED • FOR YOU
+        </p>
+      </div>
+
+      <p className="text-gray-100 text-sm md:text-base max-w-xl leading-relaxed drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">
+        Skip the scrapers. Silkpedi gently dissolves tough calluses over 3-7 days, revealing baby-soft feet — salon-quality, at home.
+      </p>
+
+      {/* Conversion CTA - scrolls to bundles so the customer can pick a pack */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-5 max-w-lg pt-1">
+        <button
+          onClick={() => scrollToSection("bundles")}
+          className="w-full sm:w-auto px-7 py-4 sm:py-3.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all duration-300 transform hover:-translate-y-1 text-center cursor-pointer"
+        >
+          GET SILKPEDI - $25
+        </button>
+
+        <div className="flex flex-col text-left text-[11px] text-gray-200">
+          <span className="font-bold text-white flex items-center">
+            🥇 PROUDLY SERVING SOUTHERN AFRICA & BEYOND
+          </span>
+          <span>Premium at-home foot care, suitable for every skin type.</span>
+        </div>
+      </div>
+    </>
+  );
+
   return (
     <div className="relative min-h-screen font-sans bg-white selection:bg-purple-brand selection:text-white pb-0">
       
       {/* 🚀 Sticky Announcement Bar */}
       <div className="bg-gradient-to-r from-teal-dark via-[#0c312d] to-purple-dark text-white text-[11px] md:text-sm py-2 px-3 md:px-4 shadow-inner relative z-50">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center space-y-1 sm:space-y-0 text-center">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center md:justify-between items-center space-y-1 sm:space-y-0 text-center">
           <div className="flex items-center space-x-2 font-medium tracking-wide">
             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="hidden sm:inline">⚡ GENTLE BOTANICAL FORMULA FOR EVERY SKIN TYPE & DEEP CALLUSES</span>
             <span className="sm:hidden">⚡ GENTLE FORMULA FOR EVERY SKIN TYPE</span>
           </div>
-          <div className="flex items-center space-x-2 md:space-x-4">
-            <span className="hidden md:inline bg-purple-brand/30 text-purple-light text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider animate-bounce">
-              ZIMBABWE • SOUTH AFRICA • ZAMBIA & BEYOND
-            </span>
-            <span className="flex items-center text-rose-300 font-bold font-mono text-[11px] md:text-xs">
-              <Clock className="w-3.5 h-3.5 mr-1 shrink-0" />
-              OFFER CLOSES IN: {formatTime(timeLeft)}
-            </span>
-          </div>
+          <span className="hidden md:inline bg-purple-brand/30 text-purple-light text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
+            ZIMBABWE • SOUTH AFRICA • ZAMBIA & BEYOND
+          </span>
         </div>
       </div>
 
@@ -475,85 +497,49 @@ export default function App() {
       {/* 🏛️ 1. Hero Section - Full-bleed image with a teal-dark gradient layered ON TOP of the image's empty left area (no separate section bg, so no edge). */}
       <section
         ref={sectionRefs.home}
-        className="relative text-white overflow-hidden min-h-[560px] sm:min-h-[520px] lg:min-h-[600px] lg:h-[calc(100vh-7rem)] lg:max-h-[720px] flex items-center"
+        className="relative bg-teal-dark text-white overflow-hidden"
         id="hero-section"
       >
-        {/* Full-bleed image - covers the whole hero so there is no section bg meeting an image edge */}
-        <img
-          src={HERO_BG_IMAGE_URL}
-          alt="Silkpedi - Woman in teal robe with Exfoliating Foot Peel product on lavender silk background"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          referrerPolicy="no-referrer"
-        />
-
-        {/* Desktop overlay - teal-dark wash sitting on top of the image's empty lavender left area, fading to transparent before the woman */}
-        <div
-          className="hidden lg:block absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to right, rgba(8,33,30,0.94) 0%, rgba(8,33,30,0.9) 22%, rgba(8,33,30,0.75) 38%, rgba(8,33,30,0.45) 50%, rgba(8,33,30,0.15) 60%, rgba(8,33,30,0) 70%)",
-          }}
-        />
-
-        {/* Mobile overlay - top-weighted scrim so headline stays legible and woman remains visible at the bottom */}
-        <div
-          className="lg:hidden absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(to bottom, rgba(8,33,30,0.92) 0%, rgba(8,33,30,0.75) 35%, rgba(8,33,30,0.35) 55%, rgba(8,33,30,0.15) 75%, rgba(8,33,30,0.05) 100%)",
-          }}
-        />
-
-        <div className="max-w-7xl mx-auto relative z-10 w-full px-5 md:px-8 py-8 lg:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
-
-            {/* Text column - sits on the dark left wash on desktop, full width on mobile */}
-            <div className="lg:col-span-6 xl:col-span-5 flex flex-col text-left space-y-4 sm:space-y-5">
-
-              <div className="inline-flex items-center space-x-2 bg-teal-light/40 border border-teal-bright/30 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-semibold text-purple-light tracking-wide w-fit shadow-md backdrop-blur-sm">
-                <Sparkles className="w-3.5 h-3.5 text-purple-brand animate-spin shrink-0" />
-                <span>THE ULTIMATE AT-HOME PEDI FOR SMOOTH FEET</span>
+        {/* ===== Desktop / large screens: full-bleed image with a left wash, text overlaid ===== */}
+        <div className="hidden lg:flex relative items-center min-h-[600px] h-[calc(100vh-7rem)] max-h-[760px]">
+          <img
+            src={HERO_BG_IMAGE_URL}
+            alt="Silkpedi - Woman in teal robe with Exfoliating Foot Peel product on lavender silk background"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            referrerPolicy="no-referrer"
+          />
+          {/* Left wash fading to transparent before the woman, so she + the product stay clear */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "linear-gradient(to right, rgba(8,33,30,0.94) 0%, rgba(8,33,30,0.9) 22%, rgba(8,33,30,0.75) 38%, rgba(8,33,30,0.45) 50%, rgba(8,33,30,0.15) 60%, rgba(8,33,30,0) 70%)",
+            }}
+          />
+          <div className="max-w-7xl mx-auto relative z-10 w-full px-8 py-12">
+            <div className="grid grid-cols-12 gap-10 items-center">
+              <div className="col-span-6 xl:col-span-5 flex flex-col text-left space-y-5">
+                {heroCopy}
               </div>
-
-              <div className="space-y-3">
-                <h1 className="font-serif text-[2.25rem] sm:text-4xl md:text-5xl xl:text-[3.75rem] font-medium tracking-tight leading-[1.05] text-white drop-shadow-[0_2px_14px_rgba(0,0,0,0.55)]">
-                  Silky Smooth <br />
-                  <span className="font-serif italic text-purple-brand">
-                    Feet at Home.
-                  </span>
-                </h1>
-                <p className="font-sans text-[11px] md:text-xs font-bold text-teal-bright tracking-widest uppercase">
-                  THE AT-HOME PEDICURE, PERFECTED • FOR YOU
-                </p>
-              </div>
-
-              <p className="text-gray-100 text-sm md:text-base max-w-xl leading-relaxed drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">
-                Skip the scrapers. Silkpedi gently dissolves tough calluses over 3-7 days, revealing baby-soft feet — salon-quality, at home.
-              </p>
-
-              {/* Conversion CTA container - scrolls to bundles so the customer can pick a pack */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-5 max-w-lg pt-1">
-                <button
-                  onClick={() => scrollToSection("bundles")}
-                  className="w-full sm:w-auto px-7 py-4 sm:py-3.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all duration-300 transform hover:-translate-y-1 text-center cursor-pointer"
-                  id="hero-buy-now-btn"
-                >
-                  GET SILKPEDI - $25
-                </button>
-
-                <div className="flex flex-col text-left text-[11px] text-gray-200">
-                  <span className="font-bold text-white flex items-center">
-                    🥇 PROUDLY SERVING SOUTHERN AFRICA & BEYOND
-                  </span>
-                  <span>Premium at-home foot care, suitable for every skin type.</span>
-                </div>
-              </div>
-
+              <div className="col-span-6 xl:col-span-7" />
             </div>
+          </div>
+        </div>
 
-            {/* Right column intentionally empty on desktop so the woman + product remain visible */}
-            <div className="hidden lg:block lg:col-span-6 xl:col-span-7" />
-
+        {/* ===== Mobile / tablet: stacked — text on solid dark, then the image in full below (no overlap) ===== */}
+        <div className="lg:hidden flex flex-col">
+          <div className="px-5 pt-9 pb-8 flex flex-col text-left space-y-4">
+            {heroCopy}
+          </div>
+          <div className="relative">
+            <img
+              src={HERO_BG_IMAGE_URL}
+              alt="Silkpedi - Woman in teal robe with Exfoliating Foot Peel product on lavender silk background"
+              className="block w-full aspect-[5/4] object-cover object-right"
+              referrerPolicy="no-referrer"
+            />
+            {/* Soft seam so the dark text block blends into the image */}
+            <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-teal-dark to-transparent pointer-events-none" />
           </div>
         </div>
       </section>
