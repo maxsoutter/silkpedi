@@ -1,0 +1,6 @@
+{
+  "name": "Silkpedi",
+  "description": "Premium e-commerce and high-conversion landing page for Silkpedi, the premium home pedi kit.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

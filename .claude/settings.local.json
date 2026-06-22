@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm run lint 2>&1)",
+      "Bash(:)",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop; Write-Output \"OK status $\\($r.StatusCode\\)\" } catch { Write-Output \"DOWN: $\\($_.Exception.Message\\)\" })",
+      "PowerShell($b = [Convert]::ToBase64String\\([IO.File]::ReadAllBytes\\(\"C:\\\\Users\\\\LENOVO\\\\Downloads\\\\rawson cma site\\\\logo.png\"\\)\\); \"data:image/png;base64,$b\" | Out-File \"C:\\\\Users\\\\LENOVO\\\\Downloads\\\\rawson cma site\\\\_logo_b64.txt\" -Encoding ascii -NoNewline; \"Length: $\\($b.Length\\)\")",
+      "PowerShell(Start-Process \"C:\\\\Users\\\\LENOVO\\\\Downloads\\\\rawson cma site\\\\index.html\")",
+      "mcp__0a36aa02-79c2-48af-b7e1-2fdee2eee0a6__netlify-user-services-reader",
+      "Bash(git --version)",
+      "Bash(git config *)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
