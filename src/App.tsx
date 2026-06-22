@@ -33,7 +33,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { PRODUCT_BUNDLES, PACK_DETAILS, INITIAL_REVIEWS, FAQ_ITEMS } from "./data";
 import { ProductBundle, CartItem, Review } from "./types";
-import heroBgImage from "./assets/images/silkpedi_hero_bg.png";
+import heroBgImage from "./assets/images/silkpedi_hero_bg.webp";
 import packImage from "./assets/images/silkpedi_pack_1779850178423.png";
 
 // Images are imported as ES modules so Vite fingerprints them with content
