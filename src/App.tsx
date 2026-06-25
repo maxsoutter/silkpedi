@@ -40,7 +40,7 @@ import packImage from "./assets/images/silkpedi_pack_1779850178423.webp";
 const HERO_BG_IMAGE_URL = heroBgImage;
 const PACK_IMAGE_URL = packImage;
 
-const WHATSAPP_PHONE = "264816454820";
+const WHATSAPP_PHONE = "263788860359";
 const openWhatsApp = (message: string) => {
   const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
   window.open(url, "_blank", "noopener,noreferrer");
