@@ -117,7 +117,7 @@ export const INITIAL_REVIEWS: Review[] = [
     title: "Smooth and even from day one.",
     content: "I've tried so many peels that dried me out and left my skin patchy. Silkpedi was the opposite — it hydrates beautifully and left everything completely uniform and soft.",
     verified: true,
-    avatar: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?q=80&w=120&auto=format&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=120&auto=format&fit=crop",
     helpfulCount: 29
   },
   {
