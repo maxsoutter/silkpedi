@@ -34,7 +34,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
       "2x Soothing & Cleansing Wipes",
       "1x Ergonomic Sanding Foot File",
       "Step-by-Step Guidance Care Manual",
-      "Express Courier Delivery Included"
+      "Fast courier delivery available"
     ]
   },
   {
@@ -54,7 +54,7 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
       "1x Ergonomic Sanding Foot File",
       "1x Ultra-Nourishing Skin Cream (Full Size)",
       "1x Premium Bamboo Moisturizing Socks",
-      "Express Courier Delivery Included"
+      "Fast courier delivery available"
     ]
   }
 ];
@@ -172,13 +172,13 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "faq-5",
     question: "How does delivery work?",
-    answer: "Express courier delivery is included on 2-pack and 3-pack bundles across our service area. For single packs or outlying regions, we deliver at a flat rate of just $5.",
+    answer: "We offer fast courier delivery. Delivery is a flat rate of $5 within the Harare CBD area. For deliveries outside Harare or across the region, just message us on WhatsApp and we'll arrange it with you.",
     category: "shipping"
   },
   {
     id: "faq-6",
     question: "Where do you deliver to?",
-    answer: "We proudly serve Zimbabwe, South Africa, Zambia and beyond, with fast courier delivery across major cities and towns. For destinations further afield, get in touch with us via email and we'll sort it out for you.",
+    answer: "We proudly serve Zimbabwe, South Africa, Zambia and beyond, with fast courier delivery. For destinations further afield, message us on WhatsApp and we'll sort it out for you.",
     category: "general"
   }
 ];

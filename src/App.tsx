@@ -23,7 +23,8 @@ import {
   CheckCircle,
   Menu,
   Copy,
-  Smartphone
+  Smartphone,
+  Phone
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { motion, AnimatePresence } from "motion/react";
@@ -915,7 +916,7 @@ export default function App() {
           <div className="bg-[#092522] border border-teal-light/35 p-6 rounded-2xl flex flex-wrap justify-center items-center gap-y-4 gap-x-12 text-center text-xs md:text-sm font-semibold max-w-4xl mx-auto">
             <span className="flex items-center space-x-2 text-gray-300 justify-center">
               <Truck className="w-4 h-4 text-purple-light" />
-              <span>📦 EXPRESS COURIER DELIVERY</span>
+              <span>📦 FAST COURIER DELIVERY</span>
             </span>
             <span className="flex items-center space-x-2 text-gray-300 justify-center">
               <ShieldCheck className="w-4 h-4 text-purple-light" />
@@ -1303,6 +1304,18 @@ export default function App() {
             <p className="text-gray-400 text-xs leading-relaxed max-w-sm">
               Silkpedi gives you spa-grade at-home peeling, the easy way. Balanced botanical AHAs gently lift difficult calluses to reveal soft, smooth feet — suitable for every skin type.
             </p>
+
+            <div className="space-y-1.5 bg-[#0f3531] p-3.5 rounded-xl border border-teal-light/30 w-fit">
+              <p className="text-[10px] font-bold text-teal-bright tracking-widest uppercase">WhatsApp or Call Us</p>
+              <a
+                href={`https://wa.me/${WHATSAPP_PHONE}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-mono font-bold text-white flex items-center mt-1 hover:text-purple-light transition-colors"
+              >
+                <Phone className="w-3.5 h-3.5 mr-1.5 text-purple-brand" /> {WHATSAPP_DISPLAY}
+              </a>
+            </div>
           </div>
 
           <div className="md:col-span-3 space-y-3">
