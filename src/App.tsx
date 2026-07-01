@@ -89,15 +89,8 @@ export default function App() {
   const [activeFaqCategory, setActiveFaqCategory] = useState<"all" | "usage" | "safety" | "shipping">("all");
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>("faq-1");
   const [activePackItem, setActivePackItem] = useState<number>(1);
-  const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+  const [reviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [likesCount, setLikesCount] = useState<Record<string, number>>({});
-
-  // Review Form state
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [newReviewName, setNewReviewName] = useState("");
-  const [newReviewRating, setNewReviewRating] = useState(5);
-  const [newReviewTitle, setNewReviewTitle] = useState("");
-  const [newReviewContent, setNewReviewContent] = useState("");
 
   // References for smooth scrolling
   const sectionRefs = {
@@ -202,28 +195,6 @@ export default function App() {
     } catch {
       // Clipboard can be blocked; the number is visible on screen regardless.
     }
-  };
-
-  // Handle Review submission
-  const handleSubmitReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newReviewName || !newReviewTitle || !newReviewContent) return;
-    const added: Review = {
-      id: `rev-${Date.now()}`,
-      name: newReviewName,
-      rating: newReviewRating,
-      date: "Today",
-      title: newReviewTitle,
-      content: newReviewContent,
-      verified: true,
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=120&auto=format&fit=crop",
-      helpfulCount: 0
-    };
-    setReviews([added, ...reviews]);
-    setNewReviewName("");
-    setNewReviewTitle("");
-    setNewReviewContent("");
-    setShowReviewForm(false);
   };
 
   // Helpful counter for reviews
@@ -968,95 +939,15 @@ export default function App() {
       >
         <div className="max-w-7xl mx-auto space-y-10 md:space-y-16">
           
-          <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 max-w-5xl mx-auto">
-            <div className="space-y-3 text-left">
-              <span className="text-xs font-mono font-bold tracking-widest text-purple-brand uppercase">
-                REAL PEDICURE RESULTS
-              </span>
-              <h2 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight">
-                Our Clients Share the Magic
-              </h2>
-              <div className="w-16 h-1 bg-purple-brand rounded-full mt-2" />
-            </div>
-            
-            <button
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              className="px-6 py-3 bg-teal-dark text-white rounded-xl text-xs font-extrabold tracking-wider uppercase hover:bg-opacity-95 transition-all w-full md:w-fit cursor-pointer"
-            >
-              {showReviewForm ? "CANCEL REVIEW" : "WRITE A REVIEW"}
-            </button>
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <span className="text-xs font-mono font-bold tracking-widest text-purple-brand uppercase">
+              REAL PEDICURE RESULTS
+            </span>
+            <h2 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight">
+              Our Clients Share the Magic
+            </h2>
+            <div className="w-16 h-1 bg-purple-brand rounded-full mx-auto mt-2" />
           </div>
-
-          {/* Review write form code block */}
-          <AnimatePresence>
-            {showReviewForm && (
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-md mx-auto bg-white border border-purple-brand/20 p-6 rounded-3xl shadow-xl space-y-4"
-              >
-                <h3 className="font-serif text-lg font-bold">Write Your Review</h3>
-                
-                <form onSubmit={handleSubmitReview} className="space-y-4 text-sm text-left">
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Your Name</label>
-                    <input 
-                      type="text" 
-                      required 
-                      value={newReviewName}
-                      onChange={(e) => setNewReviewName(e.target.value)}
-                      placeholder="e.g. Alexis M." 
-                      className="w-full px-4 py-2 bg-purple-light/50 border border-purple-brand/20 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-brand"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Star Rating</label>
-                    <select 
-                      value={newReviewRating} 
-                      onChange={(e) => setNewReviewRating(Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-purple-light/50 border border-purple-brand/20 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-brand"
-                    >
-                      <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
-                      <option value="4">⭐⭐⭐⭐ (4 Stars)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Review Title</label>
-                    <input 
-                      type="text" 
-                      required 
-                      value={newReviewTitle}
-                      onChange={(e) => setNewReviewTitle(e.target.value)}
-                      placeholder="e.g. Totally transformed my feet!" 
-                      className="w-full px-4 py-2 bg-purple-light/50 border border-purple-brand/20 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-brand"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-xs font-bold text-gray-500 uppercase">Review Details</label>
-                    <textarea 
-                      required 
-                      rows={3}
-                      value={newReviewContent}
-                      onChange={(e) => setNewReviewContent(e.target.value)}
-                      placeholder="Share your peeling experience!" 
-                      className="w-full px-4 py-2 bg-purple-light/50 border border-purple-brand/20 rounded-xl focus:outline-none focus:ring-1 focus:ring-purple-brand"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full py-3 bg-purple-brand text-white font-mono font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-opacity-95 transition-all cursor-pointer"
-                  >
-                    SUBMIT VERIFIED REVIEW
-                  </button>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Testimonial grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
