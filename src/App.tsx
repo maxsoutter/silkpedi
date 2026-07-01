@@ -4,22 +4,17 @@
  */
 
 import React, { useState, useRef, useEffect } from "react";
-import { 
-  Sparkles, 
-  ShoppingBag, 
-  Check, 
-  Truck, 
-  ShieldCheck, 
-  Lock, 
-  Star, 
-  ArrowRight, 
-  ChevronDown, 
-  ChevronUp, 
-  Plus, 
-  Minus, 
-  Info, 
-  X, 
-  CreditCard, 
+import {
+  Sparkles,
+  Check,
+  Truck,
+  ShieldCheck,
+  Lock,
+  Star,
+  ArrowRight,
+  ChevronDown,
+  ChevronUp,
+  X,
   ThumbsUp,
   Heart,
   Droplet,
@@ -31,7 +26,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { PRODUCT_BUNDLES, PACK_DETAILS, INITIAL_REVIEWS, FAQ_ITEMS } from "./data";
-import { ProductBundle, CartItem, Review } from "./types";
+import { ProductBundle, Review } from "./types";
 import heroBgImage from "./assets/images/silkpedi_hero_bg.webp";
 import packImage from "./assets/images/silkpedi_pack_1779850178423.webp";
 
@@ -41,10 +36,6 @@ const HERO_BG_IMAGE_URL = heroBgImage;
 const PACK_IMAGE_URL = packImage;
 
 const WHATSAPP_PHONE = "263788860359";
-const openWhatsApp = (message: string) => {
-  const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-};
 const BUNDLE_WHATSAPP_MESSAGES: Record<string, string> = {
   "1-pack": "Hello, I'd like to order the Silkpedi 1-Pack treatment ($25).",
   "2-pack": "Hello, I'd like to order the Silkpedi 2-Pack Combo ($45).",
@@ -69,12 +60,11 @@ export default function App() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Cart & Checkout States
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cart, setCart] = useState<CartItem | null>(null);
-  const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
-  const [checkoutStep, setCheckoutStep] = useState<"cart" | "shipping" | "payment" | "success">("cart");
+  // Lead-capture order modal (Step 1: capture email → Step 2: WhatsApp)
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [orderBundle, setOrderBundle] = useState<ProductBundle | null>(null);
+  const [orderEmail, setOrderEmail] = useState("");
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
 
   // Interactive UI states
   const [activeFaqCategory, setActiveFaqCategory] = useState<"all" | "usage" | "safety" | "shipping">("all");
@@ -89,21 +79,6 @@ export default function App() {
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [newReviewTitle, setNewReviewTitle] = useState("");
   const [newReviewContent, setNewReviewContent] = useState("");
-
-  // Checkout inputs
-  const [shippingForm, setShippingForm] = useState({
-    fullName: "",
-    email: "",
-    address: "",
-    phone: ""
-  });
-  const [paymentForm, setPaymentForm] = useState({
-    cardNumber: "4000 1234 5678 9010",
-    cardName: "",
-    cardExpiry: "12/28",
-    cardCvc: "123"
-  });
-  const [orderId, setOrderId] = useState("");
 
   // References for smooth scrolling
   const sectionRefs = {
@@ -121,63 +96,63 @@ export default function App() {
     sectionRefs[sectionId].current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Buy buttons open a pre-filled WhatsApp chat instead of an in-page cart
-  const handlePurchase = (bundle: ProductBundle) => {
-    const message =
-      BUNDLE_WHATSAPP_MESSAGES[bundle.id] ||
-      `Hello, I'd like to order the Silkpedi ${bundle.name} ($${bundle.price}).`;
-    openWhatsApp(message);
+  // ---- Lead-capture order flow ----
+  // Every buy button opens the modal. A short reference code links the emailed
+  // Netlify lead to the WhatsApp message the customer sends, so an abandoned
+  // order can be matched to their chat.
+  const openOrderModal = (bundle: ProductBundle | null) => {
+    setOrderBundle(bundle);
+    setOrderEmail("");
+    setIsOrderModalOpen(true);
   };
 
-  const handleGenericBuy = () => openWhatsApp("Hello, I'd like to buy a Silkpedi kit");
+  const handlePurchase = (bundle: ProductBundle) => openOrderModal(bundle);
+  const handleGenericBuy = () => openOrderModal(null);
 
-  // Cart operations
-  const updateCartQty = (newQty: number) => {
-    if (!cart) return;
-    if (newQty <= 0) {
-      setCart(null);
-      return;
+  const generateOrderRef = () => {
+    // No ambiguous characters (0/O, 1/I/L) so codes are easy to read aloud/type.
+    const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return `SP-${code}`;
+  };
+
+  const submitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOrderSubmitting(true);
+
+    const email = orderEmail.trim();
+    // A ref is only useful if there's an email record to tie it to.
+    const ref = email ? generateOrderRef() : "";
+    const bundleName = orderBundle ? orderBundle.name : "Not specified";
+
+    if (email) {
+      try {
+        await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            "form-name": "silkpedi-lead",
+            email,
+            ref,
+            bundle: bundleName,
+          }).toString(),
+        });
+      } catch {
+        // Never block the sale on a capture hiccup — fall through to WhatsApp.
+      }
     }
-    const unitPrice = cart.pricePerUnit;
-    setCart({
-      ...cart,
-      quantity: newQty,
-      totalPrice: unitPrice * newQty
-    });
-  };
 
-  // Apply promo simulator
-  const applyPromoCode = () => {
-    const clean = promoCode.trim().toUpperCase();
-    if (clean === "WELCOME10" || clean === "GLOW5" || clean === "SILK10") {
-      setAppliedPromo(clean);
-    } else {
-      alert("Invalid promo code! Try using 'WELCOME10' for 10% off.");
-    }
-  };
+    const base = orderBundle
+      ? (BUNDLE_WHATSAPP_MESSAGES[orderBundle.id] ||
+          `Hello, I'd like to order the Silkpedi ${orderBundle.name} ($${orderBundle.price}).`)
+      : "Hello, I'd like to buy a Silkpedi kit.";
+    const message = ref ? `${base}\n\nOrder ref: ${ref}` : base;
 
-  const getSubtotal = () => {
-    if (!cart) return 0;
-    return cart.totalPrice;
-  };
-
-  const getDiscount = () => {
-    if (!appliedPromo || !cart) return 0;
-    if (appliedPromo === "WELCOME10" || appliedPromo === "SILK10") return getSubtotal() * 0.10;
-    if (appliedPromo === "GLOW5") return 5;
-    return 0;
-  };
-
-  const getShippingFee = () => {
-    if (!cart) return 0;
-    if (cart.bundleId === "2-pack" || cart.bundleId === "3-pack" || getSubtotal() >= 40) {
-      return 0;
-    }
-    return 4.99;
-  };
-
-  const getTotal = () => {
-    return Math.max(0, getSubtotal() - getDiscount() + getShippingFee());
+    setIsOrderModalOpen(false);
+    setOrderSubmitting(false);
+    // Same-tab redirect so mobile popup blockers don't eat the WhatsApp hand-off.
+    window.location.href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
   };
 
   // Handle Review submission
@@ -208,32 +183,6 @@ export default function App() {
       ...prev,
       [id]: (prev[id] || 0) + 1
     }));
-  };
-
-  // Checkout form submit
-  const handleShippingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!shippingForm.fullName || !shippingForm.email || !shippingForm.address) {
-      alert("Please fill out all required fields.");
-      return;
-    }
-    setCheckoutStep("payment");
-  };
-
-  const handlePaymentSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const mockOrderNum = "SP-" + Math.floor(Math.random() * 900000 + 100000);
-    setOrderId(mockOrderNum);
-    setCheckoutStep("success");
-  };
-
-  // Reset helper
-  const handleResetCheckout = () => {
-    setCart(null);
-    setCheckoutStep("cart");
-    setIsCartOpen(false);
-    setAppliedPromo(null);
-    setPromoCode("");
   };
 
   const getIconComponent = (name: string) => {
@@ -401,21 +350,6 @@ export default function App() {
               id="mobile-nav-toggle"
             >
               <Menu className="w-5 h-5 text-purple-light" />
-            </button>
-
-            {/* Shopping Cart Trigger - desktop only (cart flow is decommissioned on mobile) */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="hidden lg:flex relative p-2.5 rounded-full bg-teal-medium hover:bg-teal-light border border-teal-light/30 transition-all items-center justify-center focus:outline-none"
-              aria-label="Toggle Shopping Cart"
-              id="cart-trigger-btn"
-            >
-              <ShoppingBag className="w-5 h-5 text-purple-light" />
-              {cart && cart.quantity > 0 && (
-                <div className="absolute -top-1 -right-1 bg-purple-brand text-white text-[10px] font-bold w-5.5 h-5.5 rounded-full flex items-center justify-center border-2 border-teal-dark animate-bounce">
-                  {cart.quantity}
-                </div>
-              )}
             </button>
           </div>
         </div>
@@ -1239,484 +1173,85 @@ export default function App() {
         </div>
       </section>
 
-      {/* 🛒 Interactive Cart & Checkout slideout Drawer Panel */}
+      {/* 🛒 Lead-capture Order Modal (Step 1 → hands off to WhatsApp) */}
       <AnimatePresence>
-        {isCartOpen && (
-          <div className="fixed inset-0 z-50 overflow-hidden">
-            
-            {/* Backdrop filter */}
-            <motion.div 
+        {isOrderModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 0.65 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsCartOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-xs cursor-pointer"
+              onClick={() => !orderSubmitting && setIsOrderModalOpen(false)}
+              className="absolute inset-0 bg-black/70 backdrop-blur-xs cursor-pointer"
             />
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              transition={{ type: "spring", damping: 26, stiffness: 260 }}
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+              role="dialog"
+              aria-modal="true"
+            >
+              {/* Header */}
+              <div className="bg-teal-dark text-white p-5 flex items-start justify-between">
+                <div>
+                  <p className="text-[10px] font-mono font-bold tracking-widest text-purple-light uppercase mb-1">
+                    Step 1 of 2
+                  </p>
+                  <h3 className="font-serif text-xl font-bold leading-tight">You're almost there</h3>
+                </div>
+                <button
+                  onClick={() => setIsOrderModalOpen(false)}
+                  className="p-1.5 rounded-full hover:bg-teal-light/40 transition-colors focus:outline-none shrink-0"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5 text-purple-light" />
+                </button>
+              </div>
 
-            <div className="absolute inset-y-0 right-0 max-w-md w-full flex pl-10">
-              <motion.div 
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="w-full bg-white h-full flex flex-col justify-between shadow-2xl relative"
-                id="cart-drawer-panel"
-              >
-                
-                {/* Header info */}
-                <div className="bg-teal-dark text-white p-5 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <ShoppingBag className="w-5 h-5 text-purple-light" />
-                    <span className="font-serif text-lg font-bold">Your Silkpedi Cart</span>
+              {/* Body */}
+              <form onSubmit={submitOrder} className="p-6 space-y-5">
+                {orderBundle && (
+                  <div className="bg-purple-light/60 border border-purple-brand/15 rounded-xl p-3.5 flex items-center justify-between">
+                    <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
+                    <span className="font-mono font-black text-purple-brand">${orderBundle.price}</span>
                   </div>
-                  <button 
-                    onClick={() => setIsCartOpen(false)}
-                    className="p-1.5 rounded-full hover:bg-teal-light/40 transition-colors text-white focus:outline-none cursor-pointer"
-                    aria-label="Close cart"
-                    id="close-cart-drawer-btn"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                )}
+
+                <div className="space-y-2">
+                  <label htmlFor="order-email" className="block text-xs font-bold text-gray-500 uppercase tracking-wide">
+                    Email <span className="text-gray-400 font-medium normal-case">(optional)</span>
+                  </label>
+                  <input
+                    id="order-email"
+                    type="email"
+                    value={orderEmail}
+                    onChange={(e) => setOrderEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    className="w-full px-4 py-3 bg-purple-light/50 border border-purple-brand/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-brand/40 text-sm"
+                  />
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    Add your email so we can keep a record of your order — we'll only use it to help with this purchase.
+                  </p>
                 </div>
 
-                {/* Main Body (Multi step conversion form checkout) */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                  
-                  {/* Step status dots */}
-                  <div className="flex items-center justify-center space-x-4 pb-4 border-b border-gray-100">
-                    <div className="flex items-center space-x-1.5 text-xs font-bold">
-                      <span className={`w-5.5 h-5.5 rounded-full flex items-center justify-center font-mono ${
-                        checkoutStep === "cart" ? "bg-purple-brand text-white" : "bg-emerald-100 text-emerald-700"
-                      }`}>
-                        {checkoutStep !== "cart" ? "✓" : "1"}
-                      </span>
-                      <span className={checkoutStep === "cart" ? "text-purple-brand" : "text-gray-400"}>Cart</span>
-                    </div>
-                    <span className="text-gray-300">➔</span>
-                    
-                    <div className="flex items-center space-x-1.5 text-xs font-bold">
-                      <span className={`w-5.5 h-5.5 rounded-full flex items-center justify-center font-mono ${
-                        checkoutStep === "shipping" ? "bg-purple-brand text-white" : (checkoutStep === "payment" || checkoutStep === "success" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-400")
-                      }`}>
-                        {checkoutStep === "payment" || checkoutStep === "success" ? "✓" : "2"}
-                      </span>
-                      <span className={checkoutStep === "shipping" ? "text-purple-brand" : "text-gray-400"}>Delivery</span>
-                    </div>
-                    <span className="text-gray-300">➔</span>
+                <button
+                  type="submit"
+                  disabled={orderSubmitting}
+                  className="w-full py-4 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-lg shadow-purple-900/30 hover:bg-opacity-95 transition-all disabled:opacity-70 flex items-center justify-center space-x-2 cursor-pointer"
+                >
+                  <span>{orderSubmitting ? "Opening WhatsApp…" : "Continue to Order"}</span>
+                  {!orderSubmitting && <ArrowRight className="w-4 h-4" />}
+                </button>
 
-                    <div className="flex items-center space-x-1.5 text-xs font-bold">
-                      <span className={`w-5.5 h-5.5 rounded-full flex items-center justify-center font-mono ${
-                        checkoutStep === "payment" ? "bg-purple-brand text-white" : (checkoutStep === "success" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-400")
-                      }`}>
-                        {checkoutStep === "success" ? "✓" : "3"}
-                      </span>
-                      <span className={checkoutStep === "payment" ? "text-purple-brand" : "text-gray-400"}>Payment</span>
-                    </div>
-                  </div>
-
-                  {/* Empty state conditional */}
-                  {!cart && checkoutStep !== "success" ? (
-                    <div className="py-12 text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-purple-light mx-auto flex items-center justify-center text-purple-brand text-xl font-bold">
-                        🛍️
-                      </div>
-                      <div className="space-y-1.5">
-                        <p className="font-serif text-lg font-bold">Your cart is empty.</p>
-                        <p className="text-xs text-gray-500">Pick a bundle below to start your transformation!</p>
-                      </div>
-                      <button 
-                        onClick={() => {
-                          setIsCartOpen(false);
-                          scrollToSection("bundles");
-                        }}
-                        className="px-6 py-2.5 bg-purple-brand text-white text-xs font-extrabold uppercase tracking-wider rounded-xl hover:bg-opacity-95 transition-all cursor-pointer"
-                      >
-                        VIEW BUNDLES
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      {/* -- STATE 1: VIEW CART -- */}
-                      {checkoutStep === "cart" && cart && (
-                        <div className="space-y-6">
-                          
-                          {/* Delivery milestone progress bar */}
-                          <div className="bg-purple-light border border-purple-brand/10 p-4 rounded-2xl text-xs space-y-2 text-left">
-                            <div className="flex justify-between font-bold">
-                              <span>Delivery Status:</span>
-                              <span className="text-purple-brand">
-                                {getShippingFee() === 0 ? "🎉 EXPRESS DELIVERY INCLUDED!" : `$${(40 - getSubtotal()).toFixed(2)} away from included delivery!`}
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-                              <div
-                                className="bg-gradient-to-r from-purple-brand to-teal-bright h-full transition-all duration-500"
-                                style={{ width: `${Math.min(100, (getSubtotal() / 40) * 100)}%` }}
-                              />
-                            </div>
-                            <div className="text-gray-400 text-[11px] font-medium leading-relaxed">
-                              {getShippingFee() === 0
-                                ? "Most clients choose our best value bundle to unlock express delivery automatically."
-                                : "Add a 2-Pack bundle to unlock express delivery instantly!"}
-                            </div>
-                          </div>
-
-                          {/* Cart Product List */}
-                          <div className="space-y-3">
-                            <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400 text-left">YOUR SELECTION:</p>
-                            <div className="bg-purple-light/40 border border-purple-brand/5 p-4 rounded-2xl flex items-center space-x-3.5 relative">
-                              
-                              <div className="w-16 h-16 rounded-xl bg-teal-dark overflow-hidden shrink-0">
-                                <img 
-                                  src={PACK_IMAGE_URL} 
-                                  alt="Selected Pack" 
-                                  className="w-full h-full object-cover"
-                                  referrerPolicy="no-referrer"
-                                />
-                              </div>
-
-                              <div className="flex-1 text-left">
-                                <h4 className="font-serif font-bold text-sm text-[#111]">{cart.bundleName}</h4>
-                                <p className="text-[11px] font-bold text-purple-brand">{cart.packCount} treatments pack</p>
-                                
-                                <div className="flex items-center justify-between mt-2">
-                                  {/* Qty controls */}
-                                  <div className="flex items-center space-x-1 border border-purple-brand/10 bg-white rounded-lg p-1">
-                                    <button 
-                                      onClick={() => updateCartQty(cart.quantity - 1)}
-                                      className="p-1 text-gray-400 hover:text-purple-brand focus:outline-none cursor-pointer"
-                                      aria-label="Decrease quantity"
-                                    >
-                                      <Minus className="w-3 h-3" />
-                                    </button>
-                                    <span className="font-mono text-xs font-bold px-1.5">{cart.quantity}</span>
-                                    <button 
-                                      onClick={() => updateCartQty(cart.quantity + 1)}
-                                      className="p-1 text-gray-400 hover:text-purple-brand focus:outline-none cursor-pointer"
-                                      aria-label="Increase quantity"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                    </button>
-                                  </div>
-
-                                  <span className="font-mono text-xs font-extrabold text-[#111]">${cart.totalPrice}</span>
-                                </div>
-                              </div>
-
-                              <button 
-                                onClick={() => setCart(null)}
-                                className="absolute top-2 right-2 p-1 text-gray-400 hover:text-rose-500 rounded focus:outline-none cursor-pointer"
-                                aria-label="Remove item"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-
-                            </div>
-                          </div>
-
-                          {/* Promo code entry */}
-                          <div className="space-y-2">
-                            <label className="block text-xs font-bold text-gray-500 uppercase text-left">PROMO CODE (USE 'WELCOME10' FOR 10% OFF)</label>
-                            <div className="flex space-x-2">
-                              <input 
-                                type="text"
-                                placeholder="WELCOME10"
-                                value={promoCode}
-                                onChange={(e) => setPromoCode(e.target.value)}
-                                className="flex-1 px-4 py-2.5 bg-purple-light/60 border border-purple-brand/20 rounded-xl text-xs font-mono uppercase focus:outline-none focus:ring-1 focus:ring-purple-brand"
-                              />
-                              <button 
-                                onClick={applyPromoCode}
-                                className="px-4 py-2 bg-teal-dark text-white rounded-xl text-xs font-extrabold cursor-pointer"
-                              >
-                                APPLY
-                              </button>
-                            </div>
-                            {appliedPromo && (
-                              <div className="flex justify-between items-center bg-emerald-100/60 text-emerald-800 text-xs p-2 rounded-xl font-bold font-mono">
-                                <span>Code '{appliedPromo}' applied successfully!</span>
-                                <button 
-                                  onClick={() => setAppliedPromo(null)}
-                                  className="text-emerald-900 border-l border-emerald-300 pl-2 focus:outline-none cursor-pointer"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Order subtotal block */}
-                          <div className="bg-[#FAF8FE] p-4 rounded-2xl border border-purple-brand/5 text-xs text-left space-y-2">
-                            <p className="font-mono font-bold text-[10px] uppercase text-gray-400">PRICE CALCULATION:</p>
-                            
-                            <div className="flex justify-between font-medium">
-                              <span>Cart Subtotal</span>
-                              <span className="font-mono font-bold text-[#111]">${getSubtotal().toFixed(2)}</span>
-                            </div>
-
-                            {getDiscount() > 0 && (
-                              <div className="flex justify-between font-bold text-emerald-600">
-                                <span>Coupon Discount</span>
-                                <span className="font-mono">-${getDiscount().toFixed(2)}</span>
-                              </div>
-                            )}
-
-                            <div className="flex justify-between font-medium">
-                              <span>Standard Delivery</span>
-                              <span className="font-mono font-bold text-[#111]">
-                                {getShippingFee() === 0 ? (
-                                  <span className="text-emerald-600 font-bold uppercase">INCLUDED</span>
-                                ) : (
-                                  `$${getShippingFee().toFixed(2)}`
-                                )}
-                              </span>
-                            </div>
-
-                            <div className="flex justify-between font-mono font-black border-t border-gray-100 pt-2 text-sm text-[#111]">
-                              <span>ESTIMATED TOTAL</span>
-                              <span>${getTotal().toFixed(2)}</span>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => setCheckoutStep("shipping")}
-                            className="w-full py-4 bg-purple-brand text-white text-xs font-extrabold uppercase tracking-widest rounded-xl hover:bg-opacity-95 transition-all text-center cursor-pointer"
-                          >
-                            PROCEED TO DELIVERY DETAILS
-                          </button>
-
-                        </div>
-                      )}
-
-                      {/* -- STATE 2: SHIPPING FORMS -- */}
-                      {checkoutStep === "shipping" && cart && (
-                        <form onSubmit={handleShippingSubmit} className="space-y-4 text-left text-sm">
-                          
-                          <div className="bg-purple-light/50 border border-purple-brand/10 p-3 rounded-xl flex items-center justify-between text-xs text-teal-dark">
-                            <span>Order Total:</span>
-                            <span className="font-bold underline">${getTotal().toFixed(2)}</span>
-                          </div>
-
-                          <h3 className="font-serif text-lg font-bold">Delivery Details</h3>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Your Name</label>
-                            <input 
-                              type="text"
-                              required
-                              value={shippingForm.fullName}
-                              onChange={(e) => setShippingForm({ ...shippingForm, fullName: e.target.value })}
-                              placeholder="Tendai Moyo"
-                              className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
-                            <input 
-                              type="email"
-                              required
-                              value={shippingForm.email}
-                              onChange={(e) => setShippingForm({ ...shippingForm, email: e.target.value })}
-                              placeholder="tendai@gmail.com"
-                              className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Delivery Address</label>
-                            <input 
-                              type="text"
-                              required
-                              value={shippingForm.address}
-                              onChange={(e) => setShippingForm({ ...shippingForm, address: e.target.value })}
-                              placeholder="12 Blackwood Road, Mount Pleasant, Harare"
-                              className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Mobile Phone</label>
-                            <input 
-                              type="tel"
-                              required
-                              value={shippingForm.phone}
-                              onChange={(e) => setShippingForm({ ...shippingForm, phone: e.target.value })}
-                              placeholder="+263 000 000 000"
-                              className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none"
-                            />
-                          </div>
-
-                          <div className="flex space-x-2.5 pt-4">
-                            <button
-                              type="button"
-                              onClick={() => setCheckoutStep("cart")}
-                              className="flex-1 py-3 border border-gray-200 text-teal-dark rounded-xl text-xs font-bold uppercase text-center focus:outline-none cursor-pointer"
-                            >
-                              BACK
-                            </button>
-                            <button
-                              type="submit"
-                              className="flex-1 py-3 bg-purple-brand text-white rounded-xl text-xs font-extrabold uppercase text-center focus:outline-none cursor-pointer"
-                            >
-                              CONTINUE
-                            </button>
-                          </div>
-
-                        </form>
-                      )}
-
-                      {/* -- STATE 3: PAYMENT FORMS -- */}
-                      {checkoutStep === "payment" && cart && (
-                        <form onSubmit={handlePaymentSubmit} className="space-y-5 text-left text-sm">
-                          
-                          <div className="bg-purple-light p-4 rounded-xl border border-purple-brand/15 text-xs">
-                            <p className="font-bold text-teal-dark">Delivery to:</p>
-                            <p className="text-gray-500 font-medium">{shippingForm.fullName}</p>
-                            <p className="text-gray-500 font-medium">{shippingForm.address}</p>
-                            <div className="border-t border-purple-brand/10 mt-2.5 pt-2 flex justify-between font-black text-teal-dark">
-                              <span>Total amount:</span>
-                              <span>${getTotal().toFixed(2)}</span>
-                            </div>
-                          </div>
-
-                          <h3 className="font-serif text-lg font-bold">Secure Stripe Payment</h3>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Card Holder Name</label>
-                            <input 
-                              type="text"
-                              required
-                              value={paymentForm.cardName}
-                              onChange={(e) => setPaymentForm({ ...paymentForm, cardName: e.target.value })}
-                              placeholder="JASMINE ROBINSON"
-                              className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none uppercase font-mono text-xs"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase">Credit Card Number</label>
-                            <div className="relative">
-                              <input 
-                                type="text"
-                                required
-                                value={paymentForm.cardNumber}
-                                onChange={(e) => setPaymentForm({ ...paymentForm, cardNumber: e.target.value })}
-                                placeholder="4000 1234 5678 9010"
-                                className="w-full pl-9 pr-3 py-2.5 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none font-mono text-xs"
-                              />
-                              <CreditCard className="w-4 h-4 text-gray-400 absolute left-3 top-3.5" />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase">Expiry Date</label>
-                              <input 
-                                type="text"
-                                required
-                                value={paymentForm.cardExpiry}
-                                onChange={(e) => setPaymentForm({ ...paymentForm, cardExpiry: e.target.value })}
-                                placeholder="12/28"
-                                className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none font-mono text-xs text-center"
-                              />
-                            </div>
-                            <div className="space-y-1">
-                              <label className="block text-[10px] font-bold text-gray-500 uppercase">CVC Code</label>
-                              <input 
-                                type="text"
-                                maxLength={3}
-                                required
-                                value={paymentForm.cardCvc}
-                                onChange={(e) => setPaymentForm({ ...paymentForm, cardCvc: e.target.value })}
-                                placeholder="123"
-                                className="w-full px-3 py-2 bg-purple-light/40 border border-purple-brand/20 rounded-xl focus:outline-none font-mono text-xs text-center"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-2 justify-center py-2 text-xs text-emerald-600 font-bold">
-                            <Lock className="w-4 h-4" />
-                            <span>AES-256 Bit Secure Encryption Processing</span>
-                          </div>
-
-                          <div className="flex space-x-2.5">
-                            <button
-                              type="button"
-                              onClick={() => setCheckoutStep("shipping")}
-                              className="flex-1 py-3 border border-gray-200 text-teal-dark rounded-xl text-xs font-bold uppercase text-center focus:outline-none cursor-pointer"
-                            >
-                              BACK
-                            </button>
-                            <button
-                              type="submit"
-                              className="flex-1 py-3 bg-purple-brand text-white rounded-xl text-xs font-extrabold uppercase text-center focus:outline-none cursor-pointer"
-                              id="payment-submit-btn"
-                            >
-                              PAY ${getTotal().toFixed(2)}
-                            </button>
-                          </div>
-
-                        </form>
-                      )}
-
-                      {/* -- STATE 4: SUCCESS CONGRATS -- */}
-                      {checkoutStep === "success" && (
-                        <div className="py-8 text-center space-y-6 text-teal-dark">
-                          
-                          <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 mx-auto flex items-center justify-center animate-bounce">
-                            <CheckCircle className="w-12 h-12 stroke-current" />
-                          </div>
-
-                          <div className="space-y-2">
-                            <h3 className="font-serif text-2xl font-black">Your Order is Placed!</h3>
-                            <p className="text-sm font-bold text-gray-500">
-                              Congratulations {shippingForm.fullName || "lovely client"}! Ready to peel and reveal.
-                            </p>
-                          </div>
-
-                          <div className="bg-[#FAF8FE] p-5 rounded-2xl border border-purple-brand/10 space-y-3.5 text-xs text-left">
-                            <div className="flex justify-between border-b border-purple-brand/5 pb-2">
-                              <span className="text-gray-400">Order Reference</span>
-                              <span className="font-mono font-bold text-[#111]">{orderId}</span>
-                            </div>
-                            <div className="flex justify-between border-b border-purple-brand/5 pb-2">
-                              <span className="text-gray-400">Estimated Delivery</span>
-                              <span className="font-bold text-purple-brand">In 1-2 Business Days</span>
-                            </div>
-                            <div className="flex justify-between pb-1">
-                              <span className="text-gray-400">Delivery Address</span>
-                              <span className="font-bold text-[#111]">{shippingForm.address || "Harare, Zimbabwe"}</span>
-                            </div>
-                          </div>
-
-                          <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-xs text-emerald-800 font-medium leading-relaxed">
-                            🌿 We have triggered your comprehensive homecare manual & confirmation. Soak feet in warm water for up to 2x more satisfying peeling results.
-                          </div>
-
-                          <button 
-                            onClick={handleResetCheckout}
-                            className="w-full py-4 bg-teal-dark hover:bg-teal-medium text-white rounded-xl text-xs font-extrabold uppercase tracking-widest text-center cursor-pointer"
-                          >
-                            CONTINUE SHOPPING
-                          </button>
-
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                </div>
-
-                {/* Footer security safe tag */}
-                <div className="bg-gray-50 p-4 border-t border-gray-100 text-center text-[10px] text-gray-400 font-medium flex items-center justify-center space-x-1.5 select-none">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Verified Safe and Secure Transaction via SilkPedi Platform</span>
-                </div>
-
-              </motion.div>
-            </div>
-
+                <p className="text-center text-[11px] text-gray-400 flex items-center justify-center space-x-1.5">
+                  <Lock className="w-3 h-3 shrink-0" />
+                  <span>Step 2: confirm your order on WhatsApp</span>
+                </p>
+              </form>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
@@ -1748,9 +1283,9 @@ export default function App() {
           <div className="md:col-span-3 space-y-3">
             <h4 className="text-xs font-bold tracking-widest text-purple-brand uppercase">EXPERIENCE SHOP</h4>
             <div className="flex flex-col space-y-2 text-xs text-gray-400">
-              <button onClick={() => openWhatsApp(BUNDLE_WHATSAPP_MESSAGES["1-pack"])} className="hover:text-white text-left transition-colors cursor-pointer">1-Pack Starter Pack ($25)</button>
-              <button onClick={() => openWhatsApp(BUNDLE_WHATSAPP_MESSAGES["2-pack"])} className="hover:text-white text-left transition-colors cursor-pointer">2-Pack Most Popular ($45)</button>
-              <button onClick={() => openWhatsApp(BUNDLE_WHATSAPP_MESSAGES["3-pack"])} className="hover:text-white text-left transition-colors cursor-pointer">3-Pack Absolute Glow Bundle ($70)</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "1-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">1-Pack Starter Pack ($25)</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "2-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">2-Pack Most Popular ($45)</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "3-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">3-Pack Absolute Glow Bundle ($70)</button>
               <p className="text-[10px] text-teal-bright font-bold font-mono">Use 'WELCOME10' for 10% instant rebate!</p>
             </div>
           </div>

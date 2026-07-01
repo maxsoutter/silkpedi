@@ -3,9 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Silkpedi — Silky Smooth Feet at Home</title>
+    <meta name="description" content="Silkpedi is a gentle at-home exfoliating foot peel that reveals baby-soft feet in 3–7 days. Salon-quality results, suitable for every skin type. Serving Zimbabwe, South Africa, Zambia & beyond." />
   </head>
   <body>
+    <!--
+      Hidden static form so Netlify detects and registers the "silkpedi-lead"
+      form at build time. The React order modal submits to it via fetch.
+    -->
+    <form name="silkpedi-lead" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="email" name="email" />
+      <input type="text" name="ref" />
+      <input type="text" name="bundle" />
+      <input type="text" name="bot-field" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
