@@ -20,7 +20,6 @@ import {
   Droplet,
   Layers,
   Smile,
-  Mail,
   CheckCircle,
   Menu,
   Copy,
@@ -1304,13 +1303,6 @@ export default function App() {
             <p className="text-gray-400 text-xs leading-relaxed max-w-sm">
               Silkpedi gives you spa-grade at-home peeling, the easy way. Balanced botanical AHAs gently lift difficult calluses to reveal soft, smooth feet — suitable for every skin type.
             </p>
-
-            <div className="space-y-1 bg-[#0f3531] p-3.5 rounded-xl border border-teal-light/30 w-fit">
-              <p className="text-[10px] font-bold text-teal-bright tracking-widest uppercase">🎯 24/7 PRE-PURCHASE DIAGNOSTIC HELPLINE</p>
-              <p className="text-xs font-mono font-bold text-white flex items-center mt-1">
-                <Mail className="w-3.5 h-3.5 mr-1.5 text-purple-brand" /> hello@silkpedi.com
-              </p>
-            </div>
           </div>
 
           <div className="md:col-span-3 space-y-3">
@@ -1319,7 +1311,6 @@ export default function App() {
               <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "1-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">1-Pack Starter Pack ($25)</button>
               <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "2-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">2-Pack Most Popular ($45)</button>
               <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "3-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">3-Pack Absolute Glow Bundle ($70)</button>
-              <p className="text-[10px] text-teal-bright font-bold font-mono">Use 'WELCOME10' for 10% instant rebate!</p>
             </div>
           </div>
 
@@ -1338,7 +1329,6 @@ export default function App() {
             <div className="flex flex-col space-y-2 text-xs text-gray-400">
               <p>🌍 Zimbabwe • South Africa • Zambia & beyond</p>
               <p>🛡️ Premium at-home foot care</p>
-              <p>📦 1-2 Day Regional Courier Delivery</p>
             </div>
           </div>
 
