@@ -224,8 +224,9 @@ export default function SoftFeetAfter50() {
           {/* Wash fades out before the couple so their faces stay clear */}
           <div className="absolute inset-0 bg-gradient-to-r from-teal-dark via-teal-dark/92 via-40% to-transparent to-70%" />
           <div className="absolute inset-0 bg-gradient-to-t from-teal-dark/70 to-transparent" />
-          <div className="relative max-w-7xl mx-auto px-8 py-20 xl:py-28">
-            <div className="max-w-xl space-y-6">{heroCopy(scrollToBundles)}</div>
+          {/* Padding kept tight so the CTA clears the fold on a laptop screen */}
+          <div className="relative max-w-7xl mx-auto px-8 py-10 xl:py-12">
+            <div className="max-w-xl space-y-5">{heroCopy(scrollToBundles)}</div>
           </div>
         </div>
 
