@@ -44,11 +44,16 @@ const HERO_IMAGE_URL = heroImage;
 const PACK_IMAGE_URL = packImage;
 
 /**
- * Sampled from the flat wall on the left of the hero photo, so the section
- * background and the photo meet without a visible seam. If the hero image is
- * ever replaced, re-sample this.
+ * The brand purple-dark token (--color-purple-dark in index.css), used as the
+ * hero background so the photo blends into it.
+ *
+ * The hero photo was generated to a violet colour direction on purpose: its
+ * own wall measures #40305b, within a few points of this, so the two meet
+ * without a seam while the page stays on brand colour. If the hero image is
+ * ever replaced, replace it with another violet one rather than re-sampling
+ * this to match a photo — the brand sets the colour, not the photo.
  */
-const WALL = "#3c2226";
+const WALL = "#3a225d";
 
 /** Tags leads from this page in the Netlify inbox, so ad spend can be attributed. */
 const SOURCE_TAG = "SANDALS LP";
