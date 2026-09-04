@@ -39,15 +39,15 @@ import {
 } from "lucide-react";
 import { PRODUCT_BUNDLES, INITIAL_REVIEWS } from "../data";
 import { useOrderFlow, WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "../OrderFlow";
+import heroImage from "../assets/images/silkpedi_hero_50plus.webp";
 import packImage from "../assets/images/silkpedi_pack_1779850178423.webp";
 
 /**
- * Hero visual. Currently the product pack, because the homepage's lifestyle
- * shot is a young model and would contradict this page's whole argument.
- * When the older-couple photo from the ad set is ready, drop it into
- * src/assets/images/ and point this at it — nothing else needs to change.
+ * Hero visual: an older couple at home mid-treatment. Framed with the couple
+ * in the right two-thirds and clear space on the left, so the dark wash and
+ * headline sit over the empty side without covering their faces.
  */
-const HERO_IMAGE_URL = packImage;
+const HERO_IMAGE_URL = heroImage;
 const PACK_IMAGE_URL = packImage;
 
 /** Tags leads from this page in the Netlify inbox, so ad spend can be attributed. */
@@ -211,35 +211,48 @@ export default function SoftFeetAfter50() {
       </header>
 
       {/* ── 1. Hero ─────────────────────────────────────────────────────
-              Deliberately product-led rather than model-led: the stock
-              lifestyle shot on the homepage is a young woman, which would
-              undercut every word on this page. Drop the older-couple photo
-              from the ad set into HERO_IMAGE_URL and swap the right-hand
-              column for it when it's available. ──────────────────────────── */}
+              Same pattern as the homepage: full-bleed photo with a dark wash
+              layered on top of its empty left side, so there's no visible
+              seam between a coloured panel and the image. ────────────────── */}
       <section className="relative bg-teal-dark text-white overflow-hidden">
-        <div className="absolute -top-24 -right-24 bg-purple-brand/20 w-[34rem] h-[34rem] rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 bg-teal-bright/10 w-96 h-96 rounded-full blur-3xl" />
+        {/* Desktop: photo bleeds across, copy overlaid on the washed left side */}
+        <div className="hidden lg:block relative">
+          <div
+            className="absolute inset-0 bg-cover bg-[center_right]"
+            style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
+          />
+          {/* Wash fades out before the couple so their faces stay clear */}
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-dark via-teal-dark/92 via-40% to-transparent to-70%" />
+          <div className="absolute inset-0 bg-gradient-to-t from-teal-dark/70 to-transparent" />
+          <div className="relative max-w-7xl mx-auto px-8 py-20 xl:py-28">
+            <div className="max-w-xl space-y-6">{heroCopy(scrollToBundles)}</div>
+          </div>
+        </div>
 
-        <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-14 lg:py-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          <div className="lg:col-span-7 space-y-6">{heroCopy(scrollToBundles)}</div>
-
-          <div className="lg:col-span-5 relative">
-            <div className="absolute -inset-6 bg-purple-brand/15 rounded-[3rem] blur-2xl" />
-            <img
-              src={HERO_IMAGE_URL}
-              alt="The Silkpedi exfoliating foot peel kit"
-              className="relative w-full max-w-sm mx-auto rounded-[2rem] shadow-2xl object-cover"
+        {/* Mobile / tablet: copy on solid dark, photo full-width below it */}
+        <div className="lg:hidden">
+          <div className="px-5 sm:px-8 py-12 space-y-6">{heroCopy(scrollToBundles)}</div>
+          <div className="relative h-60 sm:h-80">
+            <div
+              className="absolute inset-0 bg-cover bg-[center_right]"
+              style={{ backgroundImage: `url(${HERO_IMAGE_URL})` }}
             />
-            <div className="relative mt-5 mx-auto max-w-sm bg-[#092522]/80 backdrop-blur-sm border border-teal-light/40 rounded-2xl p-4 flex items-center space-x-3">
-              <Armchair className="w-6 h-6 text-purple-brand shrink-0" />
-              <p className="text-xs text-gray-200 leading-relaxed">
-                <span className="font-bold text-white">The whole treatment is one hour, seated.</span>{" "}
-                Nothing to scrub, nothing sharp, nothing to reach for.
-              </p>
-            </div>
+            {/* Soft seam so the dark copy block blends into the photo */}
+            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-teal-dark to-transparent" />
           </div>
         </div>
       </section>
+
+      {/* Reassurance bar sitting directly under the hero */}
+      <div className="bg-[#092522] border-b border-teal-light/30 px-4 md:px-8 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-center space-x-3 text-center">
+          <Armchair className="w-5 h-5 text-purple-brand shrink-0" />
+          <p className="text-xs md:text-sm text-gray-200 leading-relaxed">
+            <span className="font-bold text-white">The whole treatment is one hour, seated.</span>{" "}
+            Nothing to scrub, nothing sharp, nothing to reach for.
+          </p>
+        </div>
+      </div>
 
       {/* ── 2. Trust strip ─────────────────────────────────────────────── */}
       <section className="bg-purple-light border-y border-purple-brand/10 py-8 px-4 md:px-8">
