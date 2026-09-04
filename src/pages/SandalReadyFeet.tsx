@@ -43,6 +43,13 @@ import packImage from "../assets/images/silkpedi_pack_1779850178423.webp";
 const HERO_IMAGE_URL = heroImage;
 const PACK_IMAGE_URL = packImage;
 
+/**
+ * Sampled from the flat wall on the left of the hero photo, so the section
+ * background and the photo meet without a visible seam. If the hero image is
+ * ever replaced, re-sample this.
+ */
+const WALL = "#3c2226";
+
 /** Tags leads from this page in the Netlify inbox, so ad spend can be attributed. */
 const SOURCE_TAG = "SANDALS LP";
 
@@ -182,37 +189,54 @@ export default function SandalReadyFeet() {
       {/* The wash here is purple-dark rather than teal-dark: the photo is deep
           plum, and a green-black gradient over it goes muddy. Purple is a
           brand colour too, so this still reads as Silkpedi. */}
-      <section className="relative bg-purple-dark text-white overflow-hidden">
+      <section className="relative text-white overflow-hidden" style={{ backgroundColor: WALL }}>
         <div className="hidden lg:block relative">
-          {/* Cropped low and right on purpose: the sandals and smooth heels are
-              the product proof, so they matter more here than her face. */}
+          {/* `contain`, not `cover`: the photo is composed as a full figure with
+              her head, hands and sandals all in frame, so cropping it defeats
+              the point. It sits right-aligned and the page background is set to
+              the wall colour sampled from the photo itself, so there's no seam. */}
           <div
-            className="absolute inset-0 bg-cover"
+            className="absolute inset-0 bg-no-repeat"
             style={{
               backgroundImage: `url(${HERO_IMAGE_URL})`,
-              backgroundPosition: "72% 92%",
+              backgroundSize: "contain",
+              backgroundPosition: "right center",
+              // Feathers the photo's left edge into the matching background so
+              // the skirting board and floor don't start on a hard vertical line.
+              maskImage: "linear-gradient(to right, transparent 0%, #000 22%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, #000 22%)",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#2a1745] via-[#2a1745]/92 via-40% to-transparent to-70%" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2a1745]/70 to-transparent" />
+          {/* Keeps the headline legible where it runs over the photo */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(to right, ${WALL} 0%, ${WALL}e6 30%, transparent 60%)`,
+            }}
+          />
           <div className="relative max-w-7xl mx-auto px-8 py-10 xl:py-12">
             <div className="max-w-xl space-y-5">{heroCopy(scrollToBundles)}</div>
           </div>
         </div>
 
         <div className="lg:hidden">
-          <div className="px-5 sm:px-8 py-12 space-y-5 bg-[#2a1745]">
+          <div className="px-5 sm:px-8 py-12 space-y-5" style={{ backgroundColor: WALL }}>
             {heroCopy(scrollToBundles)}
           </div>
+          {/* On a narrow screen the full figure would be tiny, so this crops to
+              the half that matters: her hands fastening the sandal strap. */}
           <div className="relative h-60 sm:h-80">
             <div
               className="absolute inset-0 bg-cover"
               style={{
                 backgroundImage: `url(${HERO_IMAGE_URL})`,
-                backgroundPosition: "72% 88%",
+                backgroundPosition: "68% center",
               }}
             />
-            <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#2a1745] to-transparent" />
+            <div
+              className="absolute inset-x-0 top-0 h-20"
+              style={{ background: `linear-gradient(to bottom, ${WALL}, transparent)` }}
+            />
           </div>
         </div>
       </section>
