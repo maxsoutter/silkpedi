@@ -16,3 +16,23 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# The HTML is the only file whose contents change while keeping the same URL,
+# and it names the hashed JS bundle that decides which page renders. If any
+# cache in between (a mobile carrier proxy, a corporate proxy, a CDN) holds an
+# old copy of it, the visitor gets an old bundle and lands on the wrong page —
+# and because that cache isn't in their browser, private browsing won't help.
+# "no-store" tells every one of those caches never to keep it.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-store, must-revalidate"
+
+# The build fingerprints these filenames with a content hash, so a given URL's
+# contents can never change. Safe to cache hard and forever, which makes repeat
+# visits and ad-traffic bounces cheaper. This must come after the rule above so
+# it wins for asset paths.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
