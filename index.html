@@ -19,6 +19,14 @@
       <input type="text" name="bundle" />
       <input type="text" name="bot-field" />
     </form>
+    <!-- Same trick for the discount pop-up (src/MemberPopup.tsx). -->
+    <form name="silkpedi-member" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="tel" name="phone" />
+      <input type="email" name="email" />
+      <input type="text" name="step" />
+      <input type="text" name="page" />
+      <input type="text" name="bot-field" />
+    </form>
 
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

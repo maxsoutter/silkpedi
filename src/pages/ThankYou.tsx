@@ -48,7 +48,7 @@ const NEXT_STEPS = [
   {
     icon: "truck",
     title: "Your kit goes out by courier",
-    body: "Flat $5 within the Harare CBD area. Anywhere else in Zimbabwe, or South Africa, Zambia and beyond, we'll arrange it with you directly.",
+    body: "Free within the Harare CBD area on the 2-pack and 3-pack, and a flat $5 on a single pack. Anywhere else in Zimbabwe, or South Africa, Zambia and beyond, we'll arrange it with you directly.",
   },
   {
     icon: "cal",

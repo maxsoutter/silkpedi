@@ -4,6 +4,8 @@ import App from './App.tsx';
 import SoftFeetAfter50 from './pages/SoftFeetAfter50.tsx';
 import SandalReadyFeet from './pages/SandalReadyFeet.tsx';
 import ThankYou from './pages/ThankYou.tsx';
+import SoftFeetGuide from './pages/SoftFeetGuide.tsx';
+import MemberPopup from './MemberPopup.tsx';
 import {initPixel} from './analytics.ts';
 import './index.css';
 
@@ -16,7 +18,11 @@ const ROUTES: Record<string, React.ComponentType> = {
   '/soft-feet-after-50': SoftFeetAfter50,
   '/sandal-ready-feet': SandalReadyFeet,
   '/thank-you': ThankYou,
+  '/soft-feet-guide': SoftFeetGuide,
 };
+
+// Pages where the discount pop-up would get in the way (already bought / already joined).
+const NO_POPUP = new Set(['/thank-you', '/soft-feet-guide']);
 
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 const Page = ROUTES[path] ?? App;
@@ -27,5 +33,6 @@ initPixel();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Page />
+    {!NO_POPUP.has(path) && <MemberPopup />}
   </StrictMode>,
 );

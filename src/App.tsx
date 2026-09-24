@@ -28,6 +28,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { PRODUCT_BUNDLES, PACK_DETAILS, INITIAL_REVIEWS, FAQ_ITEMS } from "./data";
 import { ProductBundle, Review } from "./types";
 import { useOrderFlow, WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "./OrderFlow";
+import { useMembership, singlePrice } from "./membership";
+import BundlePrice, { BundleItems } from "./BundlePrice";
 import heroBgImage from "./assets/images/silkpedi_hero_bg.webp";
 import packImage from "./assets/images/silkpedi_pack_1779850178423.webp";
 
@@ -57,6 +59,7 @@ export default function App() {
   // Order flow (lead capture -> WhatsApp hand-off) lives in ./OrderFlow so this
   // page and the ad landing pages behave identically.
   const { openOrderModal, orderModal } = useOrderFlow();
+  const { isMember } = useMembership();
 
   // Interactive UI states
   const [activeFaqCategory, setActiveFaqCategory] = useState<"all" | "usage" | "safety" | "shipping">("all");
@@ -134,7 +137,7 @@ export default function App() {
           onClick={() => scrollToSection("bundles")}
           className="w-full sm:w-auto px-7 py-4 sm:py-3.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all duration-300 transform hover:-translate-y-1 text-center cursor-pointer"
         >
-          GET SILKPEDI - $25
+          GET SILKPEDI - ${singlePrice(isMember)}
         </button>
 
         <div className="flex flex-col text-left text-[11px] text-gray-200">
@@ -235,7 +238,7 @@ export default function App() {
               id="cta-nav-buy"
             >
               <span className="relative z-10 flex items-center space-x-1.5">
-                <span>GET SILKPEDI - $25</span>
+                <span>GET SILKPEDI - ${singlePrice(isMember)}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </span>
             </button>
@@ -319,7 +322,7 @@ export default function App() {
                   onClick={() => scrollToSection("bundles")}
                   className="block w-full py-3.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-lg shadow-purple-900/30 text-center"
                 >
-                  GET SILKPEDI - $25
+                  GET SILKPEDI - ${singlePrice(isMember)}
                 </button>
                 <a
                   href={`https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent("Hello, I'd like to buy a Silkpedi kit")}`}
@@ -574,7 +577,7 @@ export default function App() {
               onClick={handleGenericBuy}
               className="px-8 py-4 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/40 hover:bg-opacity-95 transition-all transform hover:-translate-y-0.5 cursor-pointer"
             >
-              GET SILKPEDI - $25
+              GET SILKPEDI - ${singlePrice(isMember)}
             </button>
             <span className="text-xs text-gray-300 font-medium">
               🔒 Skin-safe formula • 💜 Loved by clients across the region
@@ -715,13 +718,13 @@ export default function App() {
                   {/* Popular Indicator Ribbons */}
                   {bundle.popular && (
                     <div className="absolute -top-3.5 md:-top-4.5 left-1/2 -translate-x-1/2 bg-purple-brand text-white text-[9px] md:text-[10px] font-black tracking-widest uppercase px-3 md:px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
-                      🔥 BUY 2 FOR $45 (MOST POPULAR)
+                      🔥 BUY 2 — MOST POPULAR
                     </div>
                   )}
 
                   {bundle.bestValue && (
                     <div className="absolute -top-3.5 md:-top-4.5 left-1/2 -translate-x-1/2 bg-teal-bright text-white text-[9px] md:text-[10px] font-black tracking-widest uppercase px-3 md:px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
-                      💎 BUY 3 FOR $70 (BEST VALUE)
+                      💎 BUY 3 — BEST VALUE
                     </div>
                   )}
 
@@ -742,35 +745,13 @@ export default function App() {
                       </p>
                     </div>
 
-                    {/* Price banner */}
-                    <div className={`text-center py-5 rounded-2xl border ${bundle.popular ? "bg-purple-light border-purple-brand/10" : "bg-teal-dark/30 border-teal-light/20"}`}>
-                      <div className="flex items-baseline justify-center space-x-2">
-                        <span className="text-5xl font-black tracking-tight">${bundle.price}</span>
-                        {bundle.originalPrice > bundle.price && (
-                          <span className="text-lg line-through text-gray-400 font-bold">${bundle.originalPrice}</span>
-                        )}
-                      </div>
-                      <p className="text-[10px] font-mono font-bold uppercase mt-1 tracking-widest">
-                        {bundle.description}
-                      </p>
-                    </div>
-
-                    {/* Savings display card */}
-                    {bundle.savings > 0 && (
-                      <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 rounded-xl p-3 text-center text-xs font-black">
-                        🎉 INSTANT SAVINGS: ${bundle.savings} WITH COUPLINGS
-                      </div>
-                    )}
+                    {/* Price banner + member savings */}
+                    <BundlePrice bundle={bundle} isMember={isMember} />
 
                     {/* Items checklist */}
                     <div className="space-y-3 pt-2">
                       <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">WHAT'S IN THE KIT:</p>
-                      {bundle.itemsIncluded.map((itemStr, i) => (
-                        <div key={i} className="flex items-start space-x-2.5 text-xs font-medium">
-                          <Check className="w-4.5 h-4.5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                          <span className={`${bundle.popular ? "text-gray-600" : "text-gray-200"}`}>{itemStr}</span>
-                        </div>
-                      ))}
+                      <BundleItems bundle={bundle} />
                     </div>
                   </div>
 
@@ -787,10 +768,6 @@ export default function App() {
                     >
                       GET SILKPEDI
                     </button>
-                    
-                    <p className={`text-[10px] text-center mt-2.5 font-medium ${bundle.popular ? "text-gray-400" : "text-gray-300"}`}>
-                      🔒 Guaranteed Secured Stripe checkout
-                    </p>
                   </div>
 
                 </div>
@@ -811,7 +788,7 @@ export default function App() {
             </span>
             <span className="flex items-center space-x-2 text-gray-300 justify-center">
               <Lock className="w-4 h-4 text-purple-light" />
-              <span>💳 SECURE ENCRYPTED GATEWAY</span>
+              <span>💬 CONFIRM YOUR ORDER ON WHATSAPP</span>
             </span>
           </div>
 
@@ -995,7 +972,7 @@ export default function App() {
             className="px-8 py-4 bg-teal-dark text-white font-extrabold tracking-wider uppercase rounded-xl hover:bg-teal-medium transition-all transform hover:-translate-y-0.5 shadow-xl w-full lg:w-auto cursor-pointer"
             id="ready-cta-buy"
           >
-            GET SILKPEDI - $25
+            GET SILKPEDI - ${singlePrice(isMember)}
           </button>
         </div>
       </section>
@@ -1034,9 +1011,9 @@ export default function App() {
           <div className="md:col-span-3 space-y-3">
             <h4 className="text-xs font-bold tracking-widest text-purple-brand uppercase">EXPERIENCE SHOP</h4>
             <div className="flex flex-col space-y-2 text-xs text-gray-400">
-              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "1-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">1-Pack Starter Pack ($25)</button>
-              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "2-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">2-Pack Most Popular ($45)</button>
-              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "3-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">3-Pack Absolute Glow Bundle ($70)</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "1-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">1-Pack Starter Pack</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "2-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">2-Pack Most Popular</button>
+              <button onClick={() => openOrderModal(PRODUCT_BUNDLES.find((b) => b.id === "3-pack") || null)} className="hover:text-white text-left transition-colors cursor-pointer">3-Pack Absolute Glow Bundle</button>
             </div>
           </div>
 

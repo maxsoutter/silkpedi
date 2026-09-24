@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { PRODUCT_BUNDLES, PACK_DETAILS, INITIAL_REVIEWS } from "../data";
 import { useOrderFlow, WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "../OrderFlow";
+import { useMembership, singlePrice, priceFor } from "../membership";
+import BundlePrice, { BundleItems } from "../BundlePrice";
 import heroImage from "../assets/images/silkpedi_hero_sandals.webp";
 import packImage from "../assets/images/silkpedi_pack_1779850178423.webp";
 
@@ -115,7 +117,7 @@ const FAQS = [
     id: "s6",
     q: "How does delivery work?",
     a:
-      "Fast courier delivery, flat $5 within the Harare CBD area. For anywhere else in Zimbabwe, or South Africa, Zambia and beyond, message us on WhatsApp and we'll arrange it with you.",
+      "Fast courier delivery: free within the Harare CBD area on the 2-pack and 3-pack, and a flat $5 on a single pack. For anywhere else in Zimbabwe, or South Africa, Zambia and beyond, message us on WhatsApp and we'll arrange it with you.",
   },
 ];
 
@@ -124,6 +126,7 @@ const SAFE_NOTE =
 
 export default function SandalReadyFeet() {
   const { openOrderModal, orderModal } = useOrderFlow(SOURCE_TAG);
+  const { isMember } = useMembership();
   const [isScrolled, setIsScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<string | null>("s1");
   const [likes, setLikes] = useState<Record<string, number>>({});
@@ -185,7 +188,7 @@ export default function SandalReadyFeet() {
             onClick={scrollToBundles}
             className="px-5 md:px-6 py-2.5 text-[11px] md:text-xs font-extrabold tracking-wider text-white uppercase bg-purple-brand rounded-full shadow-md shadow-purple-900/30 hover:bg-opacity-95 transition-all transform hover:-translate-y-0.5 cursor-pointer"
           >
-            GET SILKPEDI — $25
+            GET SILKPEDI — ${singlePrice(isMember)}
           </button>
         </div>
       </header>
@@ -220,13 +223,13 @@ export default function SandalReadyFeet() {
             }}
           />
           <div className="relative max-w-7xl mx-auto px-8 py-10 xl:py-12">
-            <div className="max-w-xl space-y-5">{heroCopy(scrollToBundles)}</div>
+            <div className="max-w-xl space-y-5">{heroCopy(scrollToBundles, isMember)}</div>
           </div>
         </div>
 
         <div className="lg:hidden">
           <div className="px-5 sm:px-8 py-12 space-y-5" style={{ backgroundColor: WALL }}>
-            {heroCopy(scrollToBundles)}
+            {heroCopy(scrollToBundles, isMember)}
           </div>
           {/* On a narrow screen the full figure would be tiny, so this crops to
               the half that matters: her hands fastening the sandal strap. */}
@@ -342,7 +345,7 @@ export default function SandalReadyFeet() {
               onClick={scrollToBundles}
               className="px-9 py-4 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all transform hover:-translate-y-1 cursor-pointer"
             >
-              START THE CLOCK — FROM $25
+              START THE CLOCK — FROM ${singlePrice(isMember)}
             </button>
           </div>
         </div>
@@ -447,12 +450,12 @@ export default function SandalReadyFeet() {
               >
                 {bundle.popular && (
                   <div className="absolute -top-3.5 md:-top-4.5 left-1/2 -translate-x-1/2 bg-purple-brand text-white text-[9px] md:text-[10px] font-black tracking-widest uppercase px-3 md:px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
-                    🔥 BUY 2 FOR $45 (MOST POPULAR)
+                    🔥 BUY 2 — MOST POPULAR
                   </div>
                 )}
                 {bundle.bestValue && (
                   <div className="absolute -top-3.5 md:-top-4.5 left-1/2 -translate-x-1/2 bg-teal-bright text-white text-[9px] md:text-[10px] font-black tracking-widest uppercase px-3 md:px-5 py-1.5 rounded-full shadow-md whitespace-nowrap">
-                    💎 BUY 3 FOR $70 (BEST VALUE)
+                    💎 BUY 3 — BEST VALUE
                   </div>
                 )}
                 {!bundle.popular && !bundle.bestValue && (
@@ -473,44 +476,13 @@ export default function SandalReadyFeet() {
                     </p>
                   </div>
 
-                  <div
-                    className={`text-center py-5 rounded-2xl border ${
-                      bundle.popular
-                        ? "bg-purple-light border-purple-brand/10"
-                        : "bg-teal-dark/30 border-teal-light/20"
-                    }`}
-                  >
-                    <div className="flex items-baseline justify-center space-x-2">
-                      <span className="text-5xl font-black tracking-tight">${bundle.price}</span>
-                      {bundle.originalPrice > bundle.price && (
-                        <span className="text-lg line-through text-gray-400 font-bold">
-                          ${bundle.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[10px] font-mono font-bold uppercase mt-1 tracking-widest">
-                      {bundle.description}
-                    </p>
-                  </div>
-
-                  {bundle.savings > 0 && (
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 rounded-xl p-3 text-center text-xs font-black">
-                      🎉 INSTANT SAVINGS: ${bundle.savings}
-                    </div>
-                  )}
+                  <BundlePrice bundle={bundle} isMember={isMember} />
 
                   <div className="space-y-3 pt-2">
                     <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">
                       WHAT'S IN THE KIT:
                     </p>
-                    {bundle.itemsIncluded.map((itemStr, i) => (
-                      <div key={i} className="flex items-start space-x-2.5 text-xs font-medium">
-                        <Check className="w-4.5 h-4.5 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <span className={bundle.popular ? "text-gray-600" : "text-gray-200"}>
-                          {itemStr}
-                        </span>
-                      </div>
-                    ))}
+                    <BundleItems bundle={bundle} />
                   </div>
                 </div>
 
@@ -678,7 +650,7 @@ export default function SandalReadyFeet() {
             onClick={scrollToBundles}
             className="px-10 py-4.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all transform hover:-translate-y-1 cursor-pointer"
           >
-            GET SILKPEDI — FROM $25
+            GET SILKPEDI — FROM ${singlePrice(isMember)}
           </button>
           <p className="text-gray-400 text-xs">
             Or message us directly on WhatsApp:{" "}
@@ -735,7 +707,7 @@ export default function SandalReadyFeet() {
                   onClick={() => openOrderModal(b)}
                   className="hover:text-white transition-colors cursor-pointer text-left md:text-right"
                 >
-                  {b.name} (${b.price})
+                  {b.name} (${priceFor(b, isMember)})
                 </button>
               ))}
               <a href="/" className="hover:text-white transition-colors pt-2">
@@ -756,7 +728,7 @@ export default function SandalReadyFeet() {
 }
 
 /** Hero copy, shared by the desktop overlay and the mobile stacked layout. */
-function heroCopy(onCta: () => void) {
+function heroCopy(onCta: () => void, isMember: boolean) {
   return (
     <>
       <div className="inline-flex items-center space-x-2 bg-teal-light/40 border border-teal-bright/30 px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-semibold text-purple-light tracking-wide w-fit shadow-md backdrop-blur-sm">
@@ -785,7 +757,7 @@ function heroCopy(onCta: () => void) {
           onClick={onCta}
           className="w-full sm:w-auto px-7 py-4 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all duration-300 transform hover:-translate-y-1 text-center cursor-pointer"
         >
-          GET SILKPEDI — $25
+          GET SILKPEDI — ${singlePrice(isMember)}
         </button>
 
         <div className="flex flex-col text-left text-[11px] text-gray-200">

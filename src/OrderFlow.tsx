@@ -8,14 +8,15 @@ import { X, ArrowRight, Lock, Smartphone, Copy, Check } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { motion, AnimatePresence } from "motion/react";
 import { ProductBundle } from "./types";
+import { useMembership, openMemberPopup, priceFor, MEMBER_DISCOUNT_PCT } from "./membership";
 
 export const WHATSAPP_PHONE = "263788860359";
 export const WHATSAPP_DISPLAY = "+263 78 886 0359";
 
-const BUNDLE_WHATSAPP_MESSAGES: Record<string, string> = {
-  "1-pack": "Hello, I'd like to order the Silkpedi 1-Pack treatment ($25).",
-  "2-pack": "Hello, I'd like to order the Silkpedi 2-Pack Combo ($45).",
-  "3-pack": "Hello, I'd like to order the Silkpedi 3-Pack Absolute Glow bundle ($70).",
+const BUNDLE_WHATSAPP_NAMES: Record<string, string> = {
+  "1-pack": "1-Pack treatment",
+  "2-pack": "2-Pack Combo",
+  "3-pack": "3-Pack Absolute Glow bundle",
 };
 
 /**
@@ -29,6 +30,7 @@ const BUNDLE_WHATSAPP_MESSAGES: Record<string, string> = {
  * attributed to the page (and therefore the ad set) that produced them.
  */
 export function useOrderFlow(sourceTag?: string) {
+  const { isMember } = useMembership();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderBundle, setOrderBundle] = useState<ProductBundle | null>(null);
   const [orderName, setOrderName] = useState("");
@@ -75,7 +77,9 @@ export function useOrderFlow(sourceTag?: string) {
     const name = orderName.trim();
     const phone = orderPhone.trim();
     const email = orderEmail.trim();
-    const baseBundleName = orderBundle ? orderBundle.name : "Not specified";
+    const baseBundleName = orderBundle
+      ? `${orderBundle.name} (${isMember ? "member" : "regular"} $${priceFor(orderBundle, isMember)})`
+      : "Not specified";
     const bundleName = sourceTag ? `${baseBundleName} [${sourceTag}]` : baseBundleName;
 
     // Desktop always captures contact details, so always record + tag it.
@@ -102,10 +106,12 @@ export function useOrderFlow(sourceTag?: string) {
       }
     }
 
+    // The price in the message is what the team charges, so it must match the visitor's status.
     const base = orderBundle
-      ? (BUNDLE_WHATSAPP_MESSAGES[orderBundle.id] ||
-          `Hello, I'd like to order the Silkpedi ${orderBundle.name} ($${orderBundle.price}).`)
-      : "Hello, I'd like to buy a Silkpedi kit.";
+      ? `Hello, I'd like to order the Silkpedi ${BUNDLE_WHATSAPP_NAMES[orderBundle.id] || orderBundle.name} ($${priceFor(orderBundle, isMember)}${isMember ? " member price" : ""}).`
+      : isMember
+        ? "Hello, I'd like to buy a Silkpedi kit at the member price."
+        : "Hello, I'd like to buy a Silkpedi kit.";
     const message = ref ? `${base}\n\nOrder ref: ${ref}` : base;
     const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
 
@@ -175,9 +181,27 @@ export function useOrderFlow(sourceTag?: string) {
               /* ---------- Step 1: capture details ---------- */
               <form onSubmit={submitOrder} className="p-6 space-y-4">
                 {orderBundle && (
-                  <div className="bg-purple-light/60 border border-purple-brand/15 rounded-xl p-3.5 flex items-center justify-between">
-                    <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
-                    <span className="font-mono font-black text-purple-brand">${orderBundle.price}</span>
+                  <div className="bg-purple-light/60 border border-purple-brand/15 rounded-xl p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
+                      <span className="font-mono font-black text-purple-brand">
+                        {isMember && (
+                          <span className="line-through text-gray-400 font-bold text-xs mr-1.5">${orderBundle.originalPrice}</span>
+                        )}
+                        ${priceFor(orderBundle, isMember)}
+                      </span>
+                    </div>
+                    {isMember ? (
+                      <p className="text-[11px] font-bold text-emerald-700">Member price applied</p>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={openMemberPopup}
+                        className="w-full text-left text-[11px] font-bold text-purple-brand underline cursor-pointer"
+                      >
+                        Pay ${orderBundle.price} instead: unlock your {MEMBER_DISCOUNT_PCT}% member discount
+                      </button>
+                    )}
                   </div>
                 )}
 
@@ -257,7 +281,7 @@ export function useOrderFlow(sourceTag?: string) {
                 {orderBundle && (
                   <div className="bg-purple-light/60 border border-purple-brand/15 rounded-xl p-3.5 flex items-center justify-between text-left">
                     <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
-                    <span className="font-mono font-black text-purple-brand">${orderBundle.price}</span>
+                    <span className="font-mono font-black text-purple-brand">${priceFor(orderBundle, isMember)}</span>
                   </div>
                 )}
 

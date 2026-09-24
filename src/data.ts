@@ -6,8 +6,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     name: "1 Pack Treatment",
     quantity: 1,
     price: 25,
-    originalPrice: 25,
-    savings: 0,
+    originalPrice: 33,
+    savings: 8,
     description: "1 Treatment",
     popular: false,
     bestValue: false,
@@ -15,7 +15,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     itemsIncluded: [
       "1x Exfoliating Foot Peel Booties",
       "1x Soothing & Cleansing Wipe",
-      "Step-by-Step Guidance Care Manual"
+      "Step-by-Step Guidance Care Manual",
+      "FREE BONUS: The Silkpedi Soft Feet Guide"
     ]
   },
   {
@@ -23,8 +24,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     name: "2 Packs Combo",
     quantity: 2,
     price: 45,
-    originalPrice: 50,
-    savings: 5,
+    originalPrice: 59,
+    savings: 14,
     description: "2 Treatments",
     popular: true,
     bestValue: false,
@@ -34,7 +35,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
       "2x Soothing & Cleansing Wipes",
       "1x Ergonomic Sanding Foot File",
       "Step-by-Step Guidance Care Manual",
-      "Fast courier delivery available"
+      "FREE BONUS: The Silkpedi Soft Feet Guide",
+      "FREE BONUS: Free Harare CBD delivery (save $5)"
     ]
   },
   {
@@ -42,8 +44,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
     name: "3 Packs Absolute Glow",
     quantity: 3,
     price: 70,
-    originalPrice: 75,
-    savings: 5,
+    originalPrice: 92,
+    savings: 22,
     description: "3 Treatments",
     popular: false,
     bestValue: true,
@@ -54,7 +56,8 @@ export const PRODUCT_BUNDLES: ProductBundle[] = [
       "1x Ergonomic Sanding Foot File",
       "1x Ultra-Nourishing Skin Cream (Full Size)",
       "1x Premium Bamboo Moisturizing Socks",
-      "Fast courier delivery available"
+      "FREE BONUS: The Silkpedi Soft Feet Guide",
+      "FREE BONUS: Free Harare CBD delivery (save $5)"
     ]
   }
 ];
@@ -115,7 +118,7 @@ export const INITIAL_REVIEWS: Review[] = [
     rating: 5,
     date: "May 18, 2026",
     title: "Smooth and even from day one.",
-    content: "I've tried so many peels that dried me out and left my skin patchy. Silkpedi was the opposite — it hydrates beautifully and left everything completely uniform and soft.",
+    content: "I've tried so many peels that dried me out and left my skin patchy. Silkpedi was the opposite â€” it hydrates beautifully and left everything completely uniform and soft.",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1589156280159-27698a70f29e?q=80&w=120&auto=format&fit=crop",
     helpfulCount: 29
@@ -137,7 +140,7 @@ export const INITIAL_REVIEWS: Review[] = [
     rating: 5,
     date: "April 29, 2026",
     title: "Who says men can't get the home spa treatment too?",
-    content: "Bought a pack on a whim — best decision. My heels were rough from gym and trail runs, and after 6 days they were properly soft. Honestly, men deserve smooth feet too.",
+    content: "Bought a pack on a whim â€” best decision. My heels were rough from gym and trail runs, and after 6 days they were properly soft. Honestly, men deserve smooth feet too.",
     verified: true,
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop",
     helpfulCount: 18
@@ -160,7 +163,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "faq-3",
     question: "Is it safe and pain-free?",
-    answer: "Absolutely pain-free. The peel uses gentle fruit-derived botanical acids (AHAs) to lift the dead outer layer of skin. You won't feel any pain or heat — just satisfying, even peeling.",
+    answer: "Absolutely pain-free. The peel uses gentle fruit-derived botanical acids (AHAs) to lift the dead outer layer of skin. You won't feel any pain or heat â€” just satisfying, even peeling.",
     category: "safety"
   },
   {
@@ -172,7 +175,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     id: "faq-5",
     question: "How does delivery work?",
-    answer: "We offer fast courier delivery. Delivery is a flat rate of $5 within the Harare CBD area. For deliveries outside Harare or across the region, just message us on WhatsApp and we'll arrange it with you.",
+    answer: "We offer fast courier delivery. Delivery within the Harare CBD area is free on the 2-pack and 3-pack, and a flat $5 on a single pack. For deliveries outside Harare or across the region, just message us on WhatsApp and we'll arrange it with you.",
     category: "shipping"
   },
   {
