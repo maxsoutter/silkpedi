@@ -41,6 +41,7 @@ import { PRODUCT_BUNDLES, INITIAL_REVIEWS } from "../data";
 import { useOrderFlow, WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "../OrderFlow";
 import { useMembership, singlePrice, priceFor } from "../membership";
 import BundlePrice, { BundleItems } from "../BundlePrice";
+import { LegalLinks } from "./PolicyLayout";
 import heroImage from "../assets/images/silkpedi_hero_50plus.webp";
 import packImage from "../assets/images/silkpedi_pack_1779850178423.webp";
 
@@ -732,7 +733,8 @@ export default function SoftFeetAfter50() {
         </div>
 
         <div className="max-w-5xl mx-auto border-t border-teal-light/20 mt-10 pt-6 text-xs text-gray-500 text-center">
-          <p>© 2026 SilkPedi Inc. All rights reserved.</p>
+          <LegalLinks className="mb-3" />
+          <p>© 2026 Silkpedi. All rights reserved.</p>
         </div>
       </footer>
 

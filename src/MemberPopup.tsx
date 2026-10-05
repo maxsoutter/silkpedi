@@ -186,7 +186,10 @@ export default function MemberPopup() {
                   {!submitting && <ArrowRight className="w-4 h-4" />}
                 </button>
                 <p className="text-center text-[11px] text-gray-400 leading-relaxed">
-                  We'll only use your number for Silkpedi orders and offers. No spam.
+                  We'll only use your number for Silkpedi orders and offers. No spam.{" "}
+                  <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-gray-600">
+                    Privacy policy
+                  </a>
                 </p>
                 <button
                   type="button"

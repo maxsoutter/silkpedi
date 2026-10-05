@@ -15,6 +15,7 @@
 import React, { useEffect } from "react";
 import { Check, X, Info, Printer, MessageCircle, Phone, Sparkles } from "lucide-react";
 import { WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "../OrderFlow";
+import { LegalLinks } from "./PolicyLayout";
 
 const BEFORE = [
   "Pick your week. Peeling runs from about Day 3 to Day 10, so start at least ten days before any event where you want smooth feet.",
@@ -254,7 +255,8 @@ export default function SoftFeetGuide() {
           </a>
         </div>
         <p className="max-w-4xl mx-auto text-center text-[11px] text-gray-600 mt-6">
-          © 2026 SilkPedi Inc. All rights reserved.
+          <LegalLinks className="mb-3 text-gray-500" />
+          © 2026 Silkpedi. All rights reserved.
         </p>
       </footer>
     </div>

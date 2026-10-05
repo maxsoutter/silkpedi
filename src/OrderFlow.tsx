@@ -28,8 +28,9 @@ const BUNDLE_WHATSAPP_NAMES: Record<string, string> = {
  *
  * `sourceTag` is appended to the bundle name on the Netlify lead, so leads can be
  * attributed to the page (and therefore the ad set) that produced them.
+ * `messageNote` is added to the WhatsApp message, e.g. a gift-wrap request.
  */
-export function useOrderFlow(sourceTag?: string) {
+export function useOrderFlow(sourceTag?: string, messageNote?: string) {
   const { isMember } = useMembership();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderBundle, setOrderBundle] = useState<ProductBundle | null>(null);
@@ -112,7 +113,8 @@ export function useOrderFlow(sourceTag?: string) {
       : isMember
         ? "Hello, I'd like to buy a Silkpedi kit at the member price."
         : "Hello, I'd like to buy a Silkpedi kit.";
-    const message = ref ? `${base}\n\nOrder ref: ${ref}` : base;
+    const withNote = messageNote ? `${base} ${messageNote}` : base;
+    const message = ref ? `${withNote}\n\nOrder ref: ${ref}` : withNote;
     const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
 
     if (isMobile) {

@@ -30,6 +30,7 @@ import {
   Info,
 } from "lucide-react";
 import { WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "../OrderFlow";
+import { LegalLinks } from "./PolicyLayout";
 import { trackPurchaseOnce } from "../analytics";
 
 /** Falls back to bundle pricing when the payment platform can't pass a total. */
@@ -269,7 +270,8 @@ export default function ThankYou() {
           </a>
         </div>
         <p className="max-w-5xl mx-auto text-center text-[11px] text-gray-600 mt-6">
-          © 2026 SilkPedi Inc. All rights reserved.
+          <LegalLinks className="mb-3 text-gray-500" />
+          © 2026 Silkpedi. All rights reserved.
         </p>
       </footer>
     </div>

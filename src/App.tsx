@@ -30,6 +30,7 @@ import { ProductBundle, Review } from "./types";
 import { useOrderFlow, WHATSAPP_PHONE, WHATSAPP_DISPLAY } from "./OrderFlow";
 import { useMembership, singlePrice } from "./membership";
 import BundlePrice, { BundleItems } from "./BundlePrice";
+import { LegalLinks } from "./pages/PolicyLayout";
 import heroBgImage from "./assets/images/silkpedi_hero_bg.webp";
 import packImage from "./assets/images/silkpedi_pack_1779850178423.webp";
 
@@ -1037,14 +1038,9 @@ export default function App() {
 
         </div>
 
-        {/* Outer credit lines following the absolute rules of anti-tech-larping */}
         <div className="max-w-7xl mx-auto border-t border-teal-light/20 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-4">
-          <p>© 2026 SilkPedi Inc. All rights reserved. Designed to look clean & convert sales perfectly.</p>
-          <div className="flex space-x-6">
-            <span className="hover:text-white transition-colors cursor-pointer">Privacy Protocol</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Merchant Terms</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Compliance</span>
-          </div>
+          <p>© 2026 Silkpedi. All rights reserved.</p>
+          <LegalLinks />
         </div>
       </footer>
 
