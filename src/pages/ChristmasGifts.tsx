@@ -92,7 +92,7 @@ const FAQS = [
   {
     id: "x2",
     q: "Will it come gift-wrapped?",
-    a: "Yes. Every order from this page is gift-wrapped, so it's ready to give the moment it arrives. We deliver it to you, not to her, so the surprise stays with you.",
+    a: "Yes, and it's free. Every order from this page is gift-wrapped, so it's ready to give the moment it arrives. We deliver it to you, not to her, so the surprise stays with you.",
   },
   {
     id: "x3",
@@ -145,7 +145,7 @@ export default function ChristmasGifts() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-center md:justify-between items-center space-y-1 sm:space-y-0 text-center">
           <div className="flex items-center space-x-2 font-medium tracking-wide">
             <Gift className="w-3.5 h-3.5 text-purple-light shrink-0" />
-            <span>EVERY CHRISTMAS ORDER ARRIVES GIFT-WRAPPED</span>
+            <span>FREE GIFT WRAPPING ON EVERY CHRISTMAS ORDER</span>
           </div>
           <span className="hidden md:inline bg-purple-brand/30 text-purple-light text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider">
             ZIMBABWE • SOUTH AFRICA • ZAMBIA &amp; BEYOND
@@ -215,7 +215,7 @@ export default function ChristmasGifts() {
               </button>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-300 font-semibold">
-              <span className="flex items-center"><Gift className="w-4 h-4 mr-1.5 text-purple-light" />Gift-wrapped</span>
+              <span className="flex items-center"><Gift className="w-4 h-4 mr-1.5 text-purple-light" />Free gift wrapping</span>
               <span className="flex items-center"><Truck className="w-4 h-4 mr-1.5 text-purple-light" />Courier delivery</span>
               <span className="flex items-center"><Sparkles className="w-4 h-4 mr-1.5 text-purple-light" />Gentle on every skin type</span>
             </div>
@@ -234,7 +234,7 @@ export default function ChristmasGifts() {
               </div>
               <div>
                 <p className="text-[10px] font-bold tracking-widest uppercase text-purple-brand">Ready to give</p>
-                <p className="text-sm font-bold">Gift-wrapped on every order</p>
+                <p className="text-sm font-bold">Free gift wrapping</p>
               </div>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function ChristmasGifts() {
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
             <span className="bg-purple-brand text-white font-mono text-xs uppercase px-3.5 py-1 rounded-full tracking-widest font-bold">
-              ALL GIFT-WRAPPED
+              FREE GIFT WRAPPING
             </span>
             <h2 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight">Choose Her Gift</h2>
             <div className="w-16 h-1 bg-purple-brand mx-auto rounded-full" />
@@ -399,7 +399,7 @@ export default function ChristmasGifts() {
                     <div className="flex items-start space-x-2.5 text-xs font-medium">
                       <Gift className="w-4.5 h-4.5 text-purple-brand flex-shrink-0 mt-0.5" />
                       <span className={bundle.popular ? "text-gray-600" : "text-gray-200"}>
-                        Gift-wrapped and ready to give
+                        <span className="font-black text-purple-brand">FREE BONUS:</span> Gift wrapping, ready to give
                       </span>
                     </div>
                   </div>
