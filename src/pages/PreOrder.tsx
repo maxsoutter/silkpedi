@@ -8,14 +8,15 @@
  * ads, WhatsApp broadcasts and status posts.
  *
  * Terms Max set (2026-10-10), and the page promises nothing beyond them:
- *   - Pre-sale price $22 / $40 / $62 (regular $33 / $59 / $92).
+ *   - Pre-sale price $22 / $40 / $62 vs full price $33 / $59 / $92.
  *   - Reserve now, pay on delivery. No money changes hands until delivery.
- *   - No quantity limit. The price runs until the shipment lands (~24 Oct).
+ *   - No quantity limit. The price ends at PRESALE_ENDS (when stock lands).
  *   - Delivery promised as "late October to early November".
  *
- * When the stock lands, set PRESALE_OPEN to false: the page then tells
- * visitors the pre-sale has ended and sends them to the shop, so an old ad or
- * shared link never offers a price the team no longer honours.
+ * The countdown is real: the moment PRESALE_ENDS passes, the page swaps itself
+ * for a "pre-sale ended" notice, so the timer never lies and an old ad or
+ * shared link can't offer a price the team no longer honours. Never move the
+ * deadline just to keep the urgency going. PRESALE_OPEN = false closes it early.
  *
  * The discount pop-up is switched off here (main.tsx): its $25 member price is
  * worse than the pre-sale price and would only confuse people.
@@ -41,8 +42,70 @@ import { BundleItems } from "../BundlePrice";
 import { LegalLinks } from "./PolicyLayout";
 import packImage from "../assets/images/silkpedi_real_pack.webp";
 
-/** Flip to false the day the shipment lands. */
+/** Manual switch: false closes the pre-sale before the deadline. */
 const PRESALE_OPEN = true;
+
+/** The pre-sale price ends here (Harare time, UTC+2). */
+const PRESALE_ENDS = new Date("2026-10-24T23:59:59+02:00");
+const ENDS_LABEL = "Saturday 24 October";
+
+function timeLeft() {
+  const ms = Math.max(0, PRESALE_ENDS.getTime() - Date.now());
+  const s = Math.floor(ms / 1000);
+  return {
+    done: ms === 0,
+    days: Math.floor(s / 86400),
+    hours: Math.floor((s % 86400) / 3600),
+    minutes: Math.floor((s % 3600) / 60),
+    seconds: s % 60,
+  };
+}
+
+function useCountdown() {
+  const [left, setLeft] = useState(timeLeft);
+  useEffect(() => {
+    const t = window.setInterval(() => setLeft(timeLeft()), 1000);
+    return () => window.clearInterval(t);
+  }, []);
+  return left;
+}
+
+type Left = ReturnType<typeof timeLeft>;
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** Big boxed countdown: DAYS HRS MINS SECS. */
+function Countdown({ left, light = false }: { left: Left; light?: boolean }) {
+  const units = [
+    { v: left.days, l: "Days" },
+    { v: left.hours, l: "Hrs" },
+    { v: left.minutes, l: "Mins" },
+    { v: left.seconds, l: "Secs" },
+  ];
+  return (
+    <div className="flex items-start gap-2 sm:gap-3" role="timer" aria-live="off">
+      {units.map((u, i) => (
+        <React.Fragment key={u.l}>
+          <div
+            className={`w-16 sm:w-20 rounded-2xl py-3 text-center shadow-lg ${
+              light ? "bg-white text-teal-dark border border-purple-brand/20" : "bg-white/10 border border-white/15 text-white"
+            }`}
+          >
+            <div className="font-mono text-2xl sm:text-3xl font-black tabular-nums leading-none">{pad(u.v)}</div>
+            <div className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mt-1.5 ${light ? "text-purple-brand" : "text-purple-light"}`}>
+              {u.l}
+            </div>
+          </div>
+          {i < units.length - 1 && (
+            <span className={`font-mono text-2xl font-black pt-3 ${light ? "text-purple-brand" : "text-purple-light"}`}>:</span>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/** One-line countdown for the announcement bar. */
+const shortLeft = (l: Left) => `${l.days}d ${pad(l.hours)}h ${pad(l.minutes)}m ${pad(l.seconds)}s`;
 
 /** Tags leads from this page in the Netlify inbox. */
 const SOURCE_TAG = "PRESALE";
@@ -89,7 +152,7 @@ const FAQS = [
   {
     id: "p3",
     q: "How long does the pre-sale price last?",
-    a: "Until the shipment lands. After that, prices go back to normal, so reserve now to lock in the pre-sale price.",
+    a: `Until ${ENDS_LABEL}, when our shipment lands. When the countdown hits zero, the pre-sale special ends and prices go back to full price. Reserve before then and your pre-sale price is locked in.`,
   },
   {
     id: "p4",
@@ -150,11 +213,12 @@ function PresaleClosed() {
 }
 
 export default function PreOrder() {
-  if (!PRESALE_OPEN) return <PresaleClosed />;
-  return <PresaleOpen />;
+  const left = useCountdown();
+  if (!PRESALE_OPEN || left.done) return <PresaleClosed />;
+  return <PresaleOpen left={left} />;
 }
 
-function PresaleOpen() {
+function PresaleOpen({ left }: { left: Left }) {
   const { openOrderModal, orderModal } = useOrderFlow(SOURCE_TAG, PAY_NOTE, PRESALE);
   const [isScrolled, setIsScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState<string | null>("p1");
@@ -179,9 +243,10 @@ function PresaleOpen() {
     <div className="relative min-h-screen font-sans bg-white selection:bg-purple-brand selection:text-white">
       {/* ── Announcement bar ───────────────────────────────────────────── */}
       <div className="bg-gradient-to-r from-teal-dark via-[#0c312d] to-purple-dark text-white text-[11px] md:text-sm py-2 px-3 md:px-4 shadow-inner relative z-50">
-        <div className="max-w-7xl mx-auto flex items-center justify-center space-x-2 font-medium tracking-wide text-center">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 font-medium tracking-wide text-center">
           <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <span>PRE-SALE: RESERVE NOW, PAY NOTHING UNTIL DELIVERY</span>
+          <span>PRE-SALE SPECIAL ENDS IN</span>
+          <span className="font-mono font-black text-purple-light tabular-nums">{shortLeft(left)}</span>
         </div>
       </div>
 
@@ -209,9 +274,9 @@ function PresaleOpen() {
 
         <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-14 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
           <div className="space-y-6">
-            <span className="inline-flex items-center space-x-2 bg-white/10 border border-white/15 text-purple-light font-mono text-[11px] uppercase px-3.5 py-1 rounded-full tracking-widest font-bold">
+            <span className="inline-flex items-center space-x-2 bg-purple-brand text-white font-mono text-[11px] uppercase px-3.5 py-1.5 rounded-full tracking-widest font-black shadow-lg">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>New stock arriving soon</span>
+              <span>Pre-sale special · ends {ENDS_LABEL}</span>
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl xl:text-6xl font-semibold tracking-tight leading-[1.05]">
               Reserve yours now.
@@ -219,11 +284,29 @@ function PresaleOpen() {
               <span className="italic text-purple-light">Pay when it arrives.</span>
             </h1>
             <p className="text-gray-200 text-base md:text-lg leading-relaxed max-w-lg">
-              Our next Silkpedi shipment lands in about two weeks. Reserve today to lock in the pre-sale price of{" "}
-              <span className="font-bold text-white">${SINGLE}</span> instead of{" "}
-              <span className="line-through">${PRODUCT_BUNDLES[0].originalPrice}</span>, with nothing to pay until
-              your order is delivered.
+              Our next Silkpedi shipment lands in about two weeks. Reserve before the timer runs out and you pay the
+              pre-sale price, not full price, with nothing to pay until your order is delivered.
             </p>
+
+            {/* Full price vs pre-sale: the whole point of the page */}
+            <div className="flex items-stretch gap-3 max-w-md">
+              <div className="flex-1 rounded-2xl bg-white/5 border border-white/15 px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400">Full price</p>
+                <p className="text-2xl font-black text-gray-400 line-through decoration-2">${PRODUCT_BUNDLES[0].originalPrice}</p>
+              </div>
+              <div className="flex-1 rounded-2xl bg-purple-brand px-4 py-3 shadow-xl shadow-purple-900/40">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-purple-light">Pre-sale special</p>
+                <p className="text-2xl font-black">
+                  ${SINGLE} <span className="text-xs font-bold text-purple-light">save ${PRODUCT_BUNDLES[0].originalPrice - SINGLE}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-xs font-bold tracking-widest uppercase text-purple-light">Pre-sale price ends in</p>
+              <Countdown left={left} />
+            </div>
+
             <button
               onClick={scrollToBundles}
               className="px-9 py-4 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/40 hover:bg-opacity-95 transition-all transform hover:-translate-y-1 cursor-pointer"
@@ -245,7 +328,7 @@ function PresaleOpen() {
               className="relative w-full rounded-[2rem] shadow-2xl object-cover border border-white/10"
             />
             <div className="absolute -bottom-5 -left-3 sm:-left-6 bg-white text-teal-dark rounded-2xl shadow-xl px-4 py-3">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-purple-brand">Pre-sale price</p>
+              <p className="text-[10px] font-bold tracking-widest uppercase text-purple-brand">Pre-sale special</p>
               <p className="text-lg font-black">
                 ${SINGLE}{" "}
                 <span className="text-sm text-gray-400 line-through font-bold">${PRODUCT_BUNDLES[0].originalPrice}</span>
@@ -299,8 +382,11 @@ function PresaleOpen() {
             <h2 className="font-serif text-4xl md:text-5xl font-semibold tracking-tight">Reserve Your Pack</h2>
             <div className="w-16 h-1 bg-purple-brand mx-auto rounded-full" />
             <p className="text-gray-300 text-sm md:text-base">
-              These prices are only available until the shipment lands. Reserve now, pay on delivery.
+              Pre-sale prices end {ENDS_LABEL}. After that, it's full price. Reserve now, pay on delivery.
             </p>
+            <div className="flex justify-center pt-2">
+              <Countdown left={left} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch pt-6 md:pt-4">
@@ -341,17 +427,18 @@ function PresaleOpen() {
                         bundle.popular ? "bg-purple-light border-purple-brand/10" : "bg-teal-dark/30 border-teal-light/20"
                       }`}
                     >
-                      <div className="flex items-baseline justify-center space-x-2">
-                        <span className="text-5xl font-black tracking-tight">${price}</span>
-                        <span className="text-lg line-through text-gray-400 font-bold">${bundle.originalPrice}</span>
-                      </div>
-                      <p className="text-[10px] font-mono font-bold uppercase mt-1 tracking-widest">
-                        Pre-sale price · {bundle.description}
+                      <p className="text-xs font-bold text-gray-400">
+                        Full price <span className="line-through decoration-2">${bundle.originalPrice}</span>
                       </p>
+                      <p className="text-[10px] font-mono font-black uppercase mt-3 tracking-widest text-purple-brand">
+                        Pre-sale special
+                      </p>
+                      <span className="text-5xl font-black tracking-tight">${price}</span>
+                      <p className="text-[10px] font-mono font-bold uppercase mt-1 tracking-widest">{bundle.description}</p>
                     </div>
 
                     <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl p-3 text-center text-xs font-black">
-                      🎉 PRE-SALE: YOU SAVE ${save} · PAY ON DELIVERY
+                      🎉 YOU SAVE ${save} · PAY ON DELIVERY
                     </div>
 
                     <div className="space-y-3 pt-2">
@@ -438,8 +525,12 @@ function PresaleOpen() {
             <span className="italic text-purple-light">Pay nothing until it's at your door.</span>
           </h2>
           <p className="text-gray-300 text-base leading-relaxed max-w-xl mx-auto">
-            The pre-sale price ends when the shipment lands.
+            When the timer hits zero, the pre-sale special is gone and prices go back to full price
+            (${PRODUCT_BUNDLES[0].originalPrice} a pack).
           </p>
+          <div className="flex justify-center">
+            <Countdown left={left} />
+          </div>
           <button
             onClick={scrollToBundles}
             className="px-10 py-4.5 bg-purple-brand text-white text-sm font-extrabold tracking-wider uppercase rounded-xl shadow-xl shadow-purple-900/30 hover:bg-opacity-95 transition-all transform hover:-translate-y-1 cursor-pointer"
