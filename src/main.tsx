@@ -8,6 +8,7 @@ import SoftFeetGuide from './pages/SoftFeetGuide.tsx';
 import Privacy from './pages/Privacy.tsx';
 import DeliveryReturns from './pages/DeliveryReturns.tsx';
 import ChristmasGifts from './pages/ChristmasGifts.tsx';
+import PreOrder from './pages/PreOrder.tsx';
 import MemberPopup from './MemberPopup.tsx';
 import {initPixel} from './analytics.ts';
 import './index.css';
@@ -25,10 +26,12 @@ const ROUTES: Record<string, React.ComponentType> = {
   '/privacy': Privacy,
   '/delivery-returns': DeliveryReturns,
   '/christmas-gifts': ChristmasGifts,
+  '/pre-order': PreOrder,
 };
 
 // Pages where the discount pop-up would get in the way (already bought / already joined).
-const NO_POPUP = new Set(['/thank-you', '/soft-feet-guide', '/privacy', '/delivery-returns']);
+// /pre-order: its pre-sale price beats the pop-up's member price.
+const NO_POPUP = new Set(['/thank-you', '/soft-feet-guide', '/privacy', '/delivery-returns', '/pre-order']);
 
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 const Page = ROUTES[path] ?? App;

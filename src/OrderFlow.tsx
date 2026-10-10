@@ -29,9 +29,23 @@ const BUNDLE_WHATSAPP_NAMES: Record<string, string> = {
  * `sourceTag` is appended to the bundle name on the Netlify lead, so leads can be
  * attributed to the page (and therefore the ad set) that produced them.
  * `messageNote` is added to the WhatsApp message, e.g. a gift-wrap request.
+ * `special` replaces member/regular pricing with a page-specific price list
+ * (e.g. the pre-sale), labelled in the modal and the WhatsApp message.
  */
-export function useOrderFlow(sourceTag?: string, messageNote?: string) {
+export type SpecialPricing = {
+  /** Shown in the modal and WhatsApp message, e.g. "pre-sale price". */
+  label: string;
+  /** Price per bundle id. */
+  prices: Record<string, number>;
+  /** Opening word of the WhatsApp message, e.g. "reserve" instead of "order". */
+  verb?: string;
+};
+
+export function useOrderFlow(sourceTag?: string, messageNote?: string, special?: SpecialPricing) {
   const { isMember } = useMembership();
+  const priceOf = (b: ProductBundle) => special?.prices[b.id] ?? priceFor(b, isMember);
+  const priceLabel = special ? special.label : isMember ? "member price" : "";
+  const showStrike = (b: ProductBundle) => priceOf(b) < b.originalPrice;
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [orderBundle, setOrderBundle] = useState<ProductBundle | null>(null);
   const [orderName, setOrderName] = useState("");
@@ -79,7 +93,7 @@ export function useOrderFlow(sourceTag?: string, messageNote?: string) {
     const phone = orderPhone.trim();
     const email = orderEmail.trim();
     const baseBundleName = orderBundle
-      ? `${orderBundle.name} (${isMember ? "member" : "regular"} $${priceFor(orderBundle, isMember)})`
+      ? `${orderBundle.name} (${priceLabel || "regular price"} $${priceOf(orderBundle)})`
       : "Not specified";
     const bundleName = sourceTag ? `${baseBundleName} [${sourceTag}]` : baseBundleName;
 
@@ -109,7 +123,7 @@ export function useOrderFlow(sourceTag?: string, messageNote?: string) {
 
     // The price in the message is what the team charges, so it must match the visitor's status.
     const base = orderBundle
-      ? `Hello, I'd like to order the Silkpedi ${BUNDLE_WHATSAPP_NAMES[orderBundle.id] || orderBundle.name} ($${priceFor(orderBundle, isMember)}${isMember ? " member price" : ""}).`
+      ? `Hello, I'd like to ${special?.verb || "order"} the Silkpedi ${BUNDLE_WHATSAPP_NAMES[orderBundle.id] || orderBundle.name} ($${priceOf(orderBundle)}${priceLabel ? ` ${priceLabel}` : ""}).`
       : isMember
         ? "Hello, I'd like to buy a Silkpedi kit at the member price."
         : "Hello, I'd like to buy a Silkpedi kit.";
@@ -187,14 +201,16 @@ export function useOrderFlow(sourceTag?: string, messageNote?: string) {
                     <div className="flex items-center justify-between">
                       <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
                       <span className="font-mono font-black text-purple-brand">
-                        {isMember && (
+                        {showStrike(orderBundle) && (
                           <span className="line-through text-gray-400 font-bold text-xs mr-1.5">${orderBundle.originalPrice}</span>
                         )}
-                        ${priceFor(orderBundle, isMember)}
+                        ${priceOf(orderBundle)}
                       </span>
                     </div>
-                    {isMember ? (
-                      <p className="text-[11px] font-bold text-emerald-700">Member price applied</p>
+                    {special || isMember ? (
+                      <p className="text-[11px] font-bold text-emerald-700 first-letter:uppercase">
+                        {priceLabel} applied
+                      </p>
                     ) : (
                       <button
                         type="button"
@@ -283,7 +299,7 @@ export function useOrderFlow(sourceTag?: string, messageNote?: string) {
                 {orderBundle && (
                   <div className="bg-purple-light/60 border border-purple-brand/15 rounded-xl p-3.5 flex items-center justify-between text-left">
                     <span className="font-serif font-bold text-teal-dark text-sm">{orderBundle.name}</span>
-                    <span className="font-mono font-black text-purple-brand">${priceFor(orderBundle, isMember)}</span>
+                    <span className="font-mono font-black text-purple-brand">${priceOf(orderBundle)}</span>
                   </div>
                 )}
 
