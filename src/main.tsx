@@ -9,6 +9,8 @@ import Privacy from './pages/Privacy.tsx';
 import DeliveryReturns from './pages/DeliveryReturns.tsx';
 import ChristmasGifts from './pages/ChristmasGifts.tsx';
 import PreOrder from './pages/PreOrder.tsx';
+import ListiclePage from './pages/ListiclePage.tsx';
+import {ROUGH_HEELS, AFTER_50} from './pages/listicles.ts';
 import MemberPopup from './MemberPopup.tsx';
 import {initPixel} from './analytics.ts';
 import './index.css';
@@ -27,11 +29,15 @@ const ROUTES: Record<string, React.ComponentType> = {
   '/delivery-returns': DeliveryReturns,
   '/christmas-gifts': ChristmasGifts,
   '/pre-order': PreOrder,
+  // Listicle pre-landers for cold ad traffic. Not in any menu.
+  '/why-heels-stay-rough': () => <ListiclePage content={ROUGH_HEELS} />,
+  '/feet-after-50': () => <ListiclePage content={AFTER_50} />,
 };
 
 // Pages where the discount pop-up would get in the way (already bought / already joined).
 // /pre-order: its pre-sale price beats the pop-up's member price.
-const NO_POPUP = new Set(['/thank-you', '/soft-feet-guide', '/privacy', '/delivery-returns', '/pre-order']);
+// Listicles: they warm people up and never show a price, so a discount pop-up would interrupt the read.
+const NO_POPUP = new Set(['/thank-you', '/soft-feet-guide', '/privacy', '/delivery-returns', '/pre-order', '/why-heels-stay-rough', '/feet-after-50']);
 
 const path = window.location.pathname.replace(/\/+$/, '') || '/';
 const Page = ROUTES[path] ?? App;

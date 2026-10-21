@@ -129,7 +129,7 @@ export default function App() {
       </div>
 
       <p className="text-gray-100 text-sm md:text-base max-w-xl leading-relaxed drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">
-        Skip the scrapers. Silkpedi gently dissolves tough calluses over 3-7 days, revealing baby-soft feet — salon-quality, at home.
+        Skip the scrapers. Silkpedi gently dissolves tough calluses over 7–10 days, revealing baby-soft feet — salon-quality, at home.
       </p>
 
       {/* Conversion CTA - scrolls to bundles so the customer can pick a pack */}
@@ -527,7 +527,7 @@ export default function App() {
               {
                 icon: <Smile className="w-6 h-6" />,
                 title: "Soft, smooth & renewed feet",
-                desc: "Reveals the fresh, baby-soft layer underneath in 3-7 days, with a healthy lasting glow.",
+                desc: "Reveals the fresh, baby-soft layer underneath in 7–10 days, with a healthy lasting glow.",
               },
               {
                 icon: <Heart className="w-6 h-6" />,

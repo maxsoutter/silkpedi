@@ -95,7 +95,10 @@ export function useOrderFlow(sourceTag?: string, messageNote?: string, special?:
     const baseBundleName = orderBundle
       ? `${orderBundle.name} (${priceLabel || "regular price"} $${priceOf(orderBundle)})`
       : "Not specified";
-    const bundleName = sourceTag ? `${baseBundleName} [${sourceTag}]` : baseBundleName;
+    // ?via=… is set by the listicle pre-landers, so their leads can be told apart.
+    const via = new URLSearchParams(window.location.search).get("via")?.replace(/[^a-z0-9-]/gi, "").slice(0, 40);
+    const tag = [sourceTag, via && `via ${via}`].filter(Boolean).join(" ");
+    const bundleName = tag ? `${baseBundleName} [${tag}]` : baseBundleName;
 
     // Desktop always captures contact details, so always record + tag it.
     // Mobile only records (and tags) if they chose to leave an email.
