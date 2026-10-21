@@ -104,7 +104,7 @@ const FAQS = [
   },
   {
     id: "s4",
-    q: "My heels are really hard and cracked. Is one enough?",
+    q: "My heels are really hard and rough. Is one enough?",
     a:
       "One treatment makes a big difference to most feet. On heels that have been building callus for years, a second treatment about four weeks later gets you the rest of the way — which is why the 2-pack is our most popular bundle.",
   },

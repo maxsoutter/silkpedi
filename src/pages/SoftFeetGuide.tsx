@@ -63,7 +63,7 @@ const KEEP_SOFT = [
   },
   {
     title: "Repeat every 4–6 weeks",
-    body: "That matches the skin's natural renewal cycle and stops calluses reforming. Very hard, cracked heels often need a second treatment about four weeks after the first.",
+    body: "That matches the skin's natural renewal cycle and stops calluses reforming. Very hard, rough heels often need a second treatment about four weeks after the first.",
   },
 ];
 

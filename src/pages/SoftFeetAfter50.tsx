@@ -11,9 +11,11 @@
  * so a visitor who lands here and later visits silkpedi.com sees one company.
  *
  * Two rules this page is written to, on purpose:
- *   1. No medical claims. Cracked heels genuinely become more common with age,
+ *   1. No medical claims. Hard, dry skin genuinely becomes more common with age,
  *      and that is said plainly — but Silkpedi is never presented as treating,
- *      preventing or healing infection, diabetes or any condition. The promise
+ *      preventing or healing infection, diabetes or any condition. Never mention
+ *      or target cracked heels: the client doesn't want people with cracked feet
+ *      using it (the only mention allowed is the "don't use on open cracks" safety note). The promise
  *      stays on comfort, ease and dignity, which is what the product delivers.
  *   2. No invented social proof. The testimonials are the same real reviews
  *      used on the homepage.
@@ -68,7 +70,7 @@ const WHAT_CHANGES = [
     icon: "callus",
     title: "The hard skin builds faster",
     body:
-      "Decades of standing, walking and working shoes leave thick callus. It builds up quicker than it wears away — and once it splits, every step reminds you it's there.",
+      "Decades of standing, walking and working shoes leave thick callus. It builds up quicker than it wears away — and the thicker it gets, the more you feel it with every step.",
   },
   {
     icon: "reach",
@@ -292,7 +294,7 @@ export default function SoftFeetAfter50() {
             </h2>
             <div className="w-16 h-1 bg-purple-brand mx-auto rounded-full" />
             <p className="text-gray-600 text-base leading-relaxed">
-              Cracked heels after 50 aren't a sign you've stopped looking after yourself. Three
+              Hard, dry heels after 50 aren't a sign you've stopped looking after yourself. Three
               things change at once, and creams alone don't fix any of them.
             </p>
           </div>
@@ -316,7 +318,7 @@ export default function SoftFeetAfter50() {
             <p className="text-lg md:text-2xl font-serif leading-relaxed">
               And the honest part nobody says out loud:{" "}
               <span className="italic text-purple-brand">
-                hard, split heels hurt to walk on
+                hard, rough heels are uncomfortable to walk on
               </span>
               . You stop wearing the open shoes. You wince getting out of bed. You stop letting
               anyone see your feet.
@@ -765,7 +767,7 @@ function heroCopy(onCta: () => void, isMember: boolean) {
       </div>
 
       <p className="text-gray-100 text-sm md:text-base max-w-xl leading-relaxed drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)]">
-        Hard, cracked heels get harder to deal with the older we get — the skin gets drier, the
+        Hard, rough heels get harder to deal with the older we get — the skin gets drier, the
         callus builds faster, and bending over the bath stops being easy. Silkpedi does the work
         for you: slip on the booties, sit down for an hour, and over the next few days the old
         skin lifts away on its own.
